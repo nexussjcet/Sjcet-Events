@@ -18,7 +18,7 @@ Please ensure that `npm` and `Nodejs` is installed on your PC.
 - Clone the Repo
 
 ```bash
-git clone https://github.com/alvin-dennis/Events-Dashboard.git
+git clone https://github.com/alvin-dennis/Sjcet-Events.git
 ```
 - Installation of dependencies
 
@@ -26,7 +26,7 @@ git clone https://github.com/alvin-dennis/Events-Dashboard.git
 npm i or npm install
 ```
 
-- Create an`.env` file and update the file with the firebase credentials.
+- Create an `.env` file and update the file with the firebase credentials.
 
 - Start Server
 
@@ -36,7 +36,7 @@ npm run dev
 
 ## Contributing
 
-Contributions are welcome! Feel free to open an issue or submit a pull request. Follow the [guidelines](https://github.com/alvin-dennis/Events-Dashboard/blob/main/CONTRIBUTING.md) for contributing.
+Contributions are welcome! Feel free to open an issue or submit a pull request. Follow the [guidelines](https://github.com/alvin-dennis/Sjcet-Events/blob/main/CONTRIBUTING.md) for contributing.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/alvin-dennis/Events-Dashboard/blob/main/LICENSE) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/alvin-dennis/Sjcet-Events/blob/main/LICENSE) file for more details.
