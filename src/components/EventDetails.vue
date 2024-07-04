@@ -49,8 +49,8 @@ export default {
   methods: {
     async fetchEventDetails() {
       try {
-        const eventId = this.$route.params.id;
-        const eventDoc = await getDoc(doc(db, "events", eventId));
+        const eventName = this.$route.params.name;
+        const eventDoc = await getDoc(doc(db, "events", eventName));
         if (eventDoc.exists()) {
           this.event = eventDoc.data();
         } else {
