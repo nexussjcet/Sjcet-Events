@@ -147,7 +147,7 @@ margin-top: 10px;
 }
 
 .search-container input::placeholder {
-  color: #353030;
+  color: #353030  ;
 }
 
 .search-container input:hover,
