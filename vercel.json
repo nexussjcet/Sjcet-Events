@@ -3,9 +3,6 @@
         {
             "source": "/(.*)",
             "destination": "/"
-        },
-        { 
-            "source": "/event-details/:eventName", 
-            "destination": "/event-details" }
+        }
     ]
 }
