@@ -9,7 +9,7 @@ import { createMultiStepPlugin } from '@formkit/addons'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
-let app = createApp(App)
+const app = createApp(App)
 .use(router)
 .use(formKitPlugin, defaultConfig({
   plugins: [createMultiStepPlugin(),
@@ -18,8 +18,10 @@ let app = createApp(App)
 }))
 .mount('#app')
 
-onAuthStateChanged(auth, () => {
-  if (!app) {
-    app = createApp(App).use(router).mount('#app');
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("User authenticated:", user);
+  } else {
+    console.log("User not authenticated");
   }
 });
