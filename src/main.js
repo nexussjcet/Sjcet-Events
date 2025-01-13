@@ -9,7 +9,7 @@ import { createMultiStepPlugin } from '@formkit/addons'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
-const app = createApp(App)
+let app = createApp(App)
 .use(router)
 .use(formKitPlugin, defaultConfig({
   plugins: [createMultiStepPlugin(),
