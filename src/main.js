@@ -36,5 +36,6 @@ onAuthStateChanged(auth, (user) => {
         ]
       }))
       .mount('#app');
-  }
+    }
 });
+
