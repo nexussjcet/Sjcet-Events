@@ -12,30 +12,22 @@ import '@formkit/addons/css/multistep'
 let app;
 
 onAuthStateChanged(auth, (user) => {
+  if (!app) {  
+    app = createApp(App)
+      .use(router)
+      .use(formKitPlugin, defaultConfig({
+        plugins: [
+          createMultiStepPlugin(),
+          createAutoHeightTextareaPlugin()
+        ]
+      }));
+
+    app.mount('#app');
+  }
+
   if (user) {
     console.log("User authenticated:", user);
-
-    app = createApp(App)
-      .use(router)
-      .use(formKitPlugin, defaultConfig({
-        plugins: [
-          createMultiStepPlugin(),
-          createAutoHeightTextareaPlugin()
-        ]
-      }))
-      .mount('#app');
   } else {
     console.log("User not authenticated");
-
-    app = createApp(App)
-      .use(router)
-      .use(formKitPlugin, defaultConfig({
-        plugins: [
-          createMultiStepPlugin(),
-          createAutoHeightTextareaPlugin()
-        ]
-      }))
-      .mount('#app');
-    }
+  }
 });
-
