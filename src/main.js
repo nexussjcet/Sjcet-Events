@@ -9,17 +9,25 @@ import { createMultiStepPlugin } from '@formkit/addons'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
-let app = createApp(App)
-.use(router)
-.use(formKitPlugin, defaultConfig({
-  plugins: [createMultiStepPlugin(),
-    createAutoHeightTextareaPlugin()
-   ]
-}))
-.mount('#app')
+let app;
 
-onAuthStateChanged(auth, () => {
-  if (!app) {
-    app = createApp(App).use(router).mount('#app');
+onAuthStateChanged(auth, (user) => {
+  if (!app) {  
+    app = createApp(App)
+      .use(router)
+      .use(formKitPlugin, defaultConfig({
+        plugins: [
+          createMultiStepPlugin(),
+          createAutoHeightTextareaPlugin()
+        ]
+      }));
+
+    app.mount('#app');
+  }
+
+  if (user) {
+    console.log("User authenticated:", user);
+  } else {
+    console.log("User not authenticated");
   }
 });
