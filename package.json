@@ -10,6 +10,7 @@
     "format": "prettier .  --write"
   },
   "dependencies": {
+    "@azure/msal-browser": "^3.28.1",
     "@formkit/addons": "^1.6.5",
     "@formkit/themes": "^1.6.5",
     "@formkit/vue": "^1.6.5",
@@ -18,6 +19,7 @@
     "concurrently": "^8.2.2",
     "epic-spinners": "^2.0.0",
     "firebase": "^10.14.1",
+    "googleapis": "^144.0.0",
     "primeicons": "^7.0.0",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",

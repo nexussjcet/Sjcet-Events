@@ -25,6 +25,14 @@
         <p>Registration Fee: {{ event.regFee }}</p>
         <p class="medium mt">Contact:</p>
         <p>{{ event.organizerName }}: {{ event.phone }}</p>
+        <div class="calendar-buttons mt">
+          <button class="calendar-btn" @click="addToGoogleCalendar">
+            <i class="pi pi-calendar"></i> Add to Google Calendar
+          </button>
+          <button class="calendar-btn" @click="addToOutlookCalendar">
+            <i class="pi pi-calendar"></i> Add to Outlook Calendar
+          </button>
+        </div>
         <a :href="event.regLink" target="_blank" class="reglink">Register</a>
       </div>
     </div>
@@ -34,6 +42,7 @@
 <script>
 import { db } from '../firebase';
 import { getDoc, doc } from 'firebase/firestore';
+import { toast } from "vue3-toastify";
 
 import 'primeicons/primeicons.css';
 
@@ -59,6 +68,66 @@ export default {
       } catch (error) {
         console.error('Error fetching event details:', error);
       }
+    },
+    formatEventForCalendar() {
+      // Convert event time to proper format
+      const [hours, minutes] = this.event.time.split(':');
+      const eventDate = new Date(this.event.date);
+      const startTime = new Date(eventDate.setHours(Number(hours), Number(minutes)));
+      const endTime = new Date(startTime.getTime() + (2 * 60 * 60 * 1000)); // Default 2 hours duration
+
+      return {
+        title: this.event.eventName,
+        description: `${this.event.eventDesc}\n\nOrganized by: ${this.event.clubName}\nRegistration Link: ${this.event.regLink}`,
+        start: startTime,
+        end: endTime,
+        location: this.event.venue
+      };
+    },
+    addToGoogleCalendar() {
+      try {
+        const event = this.formatEventForCalendar();
+        const url = this.createGoogleCalendarUrl(event);
+        window.open(url, '_blank');
+      } catch (error) {
+        toast.error("Error adding to Google Calendar", {
+          theme: "dark",
+          position: "top-center"
+        });
+      }
+    },
+    addToOutlookCalendar() {
+      try {
+        const event = this.formatEventForCalendar();
+        const url = this.createOutlookCalendarUrl(event);
+        window.open(url, '_blank');
+      } catch (error) {
+        toast.error("Error adding to Outlook Calendar", {
+          theme: "dark",
+          position: "top-center"
+        });
+      }
+    },
+    createGoogleCalendarUrl(event) {
+      const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+      const params = new URLSearchParams({
+        text: event.title,
+        details: event.description,
+        location: event.location,
+        dates: `${event.start.toISOString().replace(/[-:.]/g, '')}/${event.end.toISOString().replace(/[-:.]/g, '')}`
+      });
+      return `${baseUrl}&${params.toString()}`;
+    },
+    createOutlookCalendarUrl(event) {
+      const baseUrl = 'https://outlook.live.com/calendar/0/deeplink/compose';
+      const params = new URLSearchParams({
+        subject: event.title,
+        body: event.description,
+        location: event.location,
+        startdt: event.start.toISOString(),
+        enddt: event.end.toISOString()
+      });
+      return `${baseUrl}?${params.toString()}`;
     }
   }
 };
@@ -133,6 +202,32 @@ export default {
   transition: 0.4s;
 }
 
+.calendar-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.calendar-btn {
+  padding: 0.5em 1em;
+  border: 2px solid #18df43;
+  border-radius: 8px;
+  background-color: #18df43;
+  color: #000;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  transition: 0.4s;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+} 
+
+.calendar-btn:hover {
+  background-color: #0d0d0d;
+  color: #18df43;
+}
+
 @media (max-width: 768px) {
   .home-container {
     height: 100vh;
@@ -199,6 +294,14 @@ export default {
     color: #18df43;
     transition: 0.4s;
 }
+.calendar-buttons {
+  flex-direction: column;
+  align-items: center;
+}
+.calendar-btn {
+  width: 100%;
+  justify-content: center;
+}
 }
 @media (max-width: 991px) {
     .event-container {
@@ -212,9 +315,3 @@ export default {
     }
 }
 </style>
-
-
-
-
-
-   
