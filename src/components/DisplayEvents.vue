@@ -1,5 +1,8 @@
 <template>
   <div>
+    <button v-if="isLoggedIn" @click="handleLogout" class="logout-btn" data-aos="fade-right" data-aos-duration="1500">
+        Logout
+    </button>
     <a @click="$router.push({ name: 'Home'})">
       <img src="/logo.webp" alt="SJCET Logo" class="logo" height="90px" data-aos="fade-right" data-aos-duration="1500">
     </a>
@@ -46,6 +49,10 @@
 <script>
 import { db } from '../firebase';
 import { getDocs, collection } from 'firebase/firestore';
+import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
+import { toast } from "vue3-toastify";
+import { ref, onMounted } from 'vue';
 
 export default {
   data() {
@@ -53,10 +60,14 @@ export default {
       searchQuery: '',
       eventList: [],
       colorCache: {},
+      isLoggedIn: false
     };
   },
   mounted() {
     this.fetchEvents();
+    auth.onAuthStateChanged((user) => {
+      this.isLoggedIn = !!user;
+    });
   },
   methods: {
     async fetchEvents() {
@@ -82,6 +93,20 @@ export default {
       const dateObject = new Date(dateString);
       const month = dateObject.toLocaleDateString('en-GB', { month: 'short' });
       return `${dateObject.getDate()} ${month} ${dateObject.getFullYear()}`;
+    },
+    async handleLogout() {
+      try {
+        await signOut(auth);
+        toast.success("Logged out successfully", {
+          theme: "dark",
+          position: "top-center"
+        });
+      } catch (error) {
+        toast.error("Error logging out", {
+          theme: "dark",
+          position: "top-center"
+        });
+      }
     }
   },
   computed: {
@@ -259,7 +284,23 @@ background-color: #151415;
 color: #18df43;
 transition: 0.4s;
 }
+
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #18df43;
+    color: #000;
+    border: 2px solid #18df43;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.4s;
+}
+
+.logout-btn:hover {
+    background-color: #000;
+    color: #18df43;
+}
 </style>
-
-
-

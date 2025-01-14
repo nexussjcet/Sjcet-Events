@@ -1,5 +1,8 @@
 <template>
     <div class="home-container">
+        <button v-if="isLoggedIn" @click="handleLogout" class="logout-btn" data-aos="fade-right" data-aos-duration="1500">
+            Logout
+        </button>
         <a href="#">
         <img src="/logo.webp" alt="SJCET Logo" class="logo-home" height="100px" data-aos="fade-right" data-aos-duration="1500">
         </a>
@@ -17,7 +20,42 @@
 </template>
    
 <script>
+import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
+import { toast } from "vue3-toastify";
+import { ref, onMounted } from 'vue';
 
+export default {
+    setup() {
+        const isLoggedIn = ref(false);
+
+        onMounted(() => {
+            auth.onAuthStateChanged((user) => {
+                isLoggedIn.value = !!user;
+            });
+        });
+
+        const handleLogout = async () => {
+            try {
+                await signOut(auth);
+                toast.success("Logged out successfully", {
+                    theme: "dark",
+                    position: "top-center"
+                });
+            } catch (error) {
+                toast.error("Error logging out", {
+                    theme: "dark",
+                    position: "top-center"
+                });
+            }
+        };
+
+        return {
+            isLoggedIn,
+            handleLogout
+        };
+    }
+}
 </script>
 
 <style scoped>
@@ -108,6 +146,25 @@
 .display-event-btn:hover {
     background-color: #0d0d0d;
     color: #65d818;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #18df43;
+    color: #000;
+    border: 2px solid #18df43;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.4s;
+}
+
+.logout-btn:hover {
+    background-color: #000;
+    color: #18df43;
 }
 
 @media (max-width: 991px) {
