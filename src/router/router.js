@@ -77,6 +77,7 @@ router.beforeEach(async (to, from, next) => {
         "position": "top-center",
         "dangerouslyHTMLString": true
       });
+      return next('/no-access');
     }
   }
 

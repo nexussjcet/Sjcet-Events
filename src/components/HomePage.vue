@@ -1,7 +1,7 @@
 <template>
     <div class="home-container">
-        <button v-if="isLoggedIn" @click="handleLogout" class="logout-btn" data-aos="fade-right" data-aos-duration="1500">
-            Logout
+        <button @click="handleAuth" class="auth-btn" data-aos="fade-right" data-aos-duration="1500">
+            {{ isLoggedIn ? 'Logout' : 'Login' }}
         </button>
         <a href="#">
         <img src="/logo.webp" alt="SJCET Logo" class="logo-home" height="100px" data-aos="fade-right" data-aos-duration="1500">
@@ -12,28 +12,54 @@
             <br/>
             <p class="main-para" data-aos="fade-up" data-aos-duration="2200">Stay updated on all campus happenings, from workshops to club meetings and sports events. Easily browse, RSVP to ensure you never miss out on the excitement. Enjoy exploring and engaging with our vibrant college community!</p>
             <div class="main-buttons" data-aos="fade-up" data-aos-duration="2500">
-                <button class="add-event-btn"  @click="$router.push({ name: 'AddEventForm' })">+ Add Event</button>
-                <button class="display-event-btn"  @click="$router.push({ name: 'DisplayEvents' })">Display Events</button>
+                <button 
+                    class="add-event-btn"  
+                    v-if="isLoggedIn && isAdmin"
+                    @click="$router.push({ name: 'AddEventForm' })"
+                >
+                    + Add Event
+                </button>
+                <button class="display-event-btn" @click="$router.push({ name: 'DisplayEvents' })">Display Events</button>
             </div>
         </div>
     </div>
 </template>
    
 <script>
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
+import { signInWithGoogle } from '../firebase';
 import { toast } from "vue3-toastify";
 import { ref, onMounted } from 'vue';
+import {useRouter} from 'vue-router';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default {
     setup() {
         const isLoggedIn = ref(false);
+        const isAdmin = ref(false);
+        const router = useRouter();
 
-        onMounted(() => {
-            auth.onAuthStateChanged((user) => {
+        onMounted(async () => {
+            auth.onAuthStateChanged(async (user) => {
                 isLoggedIn.value = !!user;
+                if (user) {
+                    const userRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        isAdmin.value = userDoc.data().role === 'admin'; // Set admin status
+                    }
+                }
             });
         });
+
+        const handleAuth = async () => {
+            if (isLoggedIn.value) {
+                await handleLogout();
+            } else {
+                await handleLoginWithGoogle();
+            }
+        };
 
         const handleLogout = async () => {
             try {
@@ -42,6 +68,7 @@ export default {
                     theme: "dark",
                     position: "top-center"
                 });
+                isAdmin.value = false;
             } catch (error) {
                 toast.error("Error logging out", {
                     theme: "dark",
@@ -50,9 +77,26 @@ export default {
             }
         };
 
+        const handleLoginWithGoogle = async () => {
+            try {
+                await signInWithGoogle();
+                toast.success("Logged in successfully", {
+                    theme: "dark",
+                    position: "top-center"
+                });
+                router.push('/');
+            } catch (error) {
+                toast.error("Authentication error!", {
+                    theme: "dark",
+                    position: "top-center"
+                });
+            }
+        };
+
         return {
             isLoggedIn,
-            handleLogout
+            isAdmin,
+            handleAuth
         };
     }
 }
@@ -148,7 +192,7 @@ export default {
     color: #65d818;
 }
 
-.logout-btn {
+.auth-btn {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -162,98 +206,9 @@ export default {
     transition: 0.4s;
 }
 
-.logout-btn:hover {
+.auth-btn:hover {
     background-color: #000;
     color: #18df43;
 }
-
-@media (max-width: 991px) {
-    .home-container {
-        padding: 1em;
-    }
-
-    .logo-home {
-        width: 170px; 
-        height: auto;
-    }
-
-    .main-container {
-        padding: 2em 1em;
-        height: auto;
-    }
-
-    .title {
-        font-size: 3rem;
-    }
-
-    .highlight {
-        font-size: 2rem;
-    }
-
-    .main-para {
-        font-size: 1.4rem;
-        padding: 0 1em;
-    }
-
-    .main-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .add-event-btn, .display-event-btn {
-        margin: 10px 0;
-        width: 100%;
-        max-width: 300px;
-    }
-}
-
-@media (max-width: 768px) {
-    .logo-home {
-        width: 150px; 
-        height: 100px;
-    }
-
-    .title {
-        font-size: 2.5rem;
-    }
-
-    .highlight {
-        font-size: 1.8rem;
-    }
-
-    .main-para {
-        font-size: 1.3rem;
-    }
-
-    .add-event-btn, .display-event-btn {
-        font-size: 1.2rem;
-        padding: 12px 20px;
-    }
-}
-
-@media (max-width: 576px) {
-    .logo-home {
-        width: 120px; 
-        height: 90px;
-    }
-
-    .title {
-        font-size: 2rem;
-    }
-
-    .highlight {
-        font-size: 1.5rem;
-    }
-
-    .main-para {
-        font-size: 1.1rem;
-    }
-
-    .add-event-btn, .display-event-btn {
-        font-size: 1rem;
-        padding: 10px 15px;
-    }
-}
-
 </style>
    
