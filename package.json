@@ -10,7 +10,7 @@
     "format": "prettier .  --write"
   },
   "dependencies": {
-    "@azure/msal-browser": "^3.28.1",
+    "@azure/msal-browser": "^4.0.0",
     "@formkit/addons": "^1.6.5",
     "@formkit/themes": "^1.6.5",
     "@formkit/vue": "^1.6.5",
