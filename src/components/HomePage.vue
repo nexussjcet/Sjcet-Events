@@ -210,5 +210,68 @@ export default {
     background-color: #000;
     color: #18df43;
 }
+
+@media (max-width: 768px) {
+    .home-container {
+        padding: 1em;
+    }
+
+    .main-para {
+        font-size: 1.2rem;
+        padding: 0 10%;
+    }
+
+    .title {
+        font-size: 3rem;
+    }
+
+    .highlight {
+        font-size: 1.5rem;
+    }
+
+    .main-buttons {
+        flex-direction: column;
+        padding: 0 20px;
+    }
+
+    .add-event-btn, .display-event-btn {
+        font-size: 1.2rem;
+        padding: 12px 20px;
+    }
+
+    .logo-home {
+        top: 10px;
+        left: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-container {
+        padding: 0.5em;
+    }
+
+    .main-para {
+        font-size: 1rem;
+        padding: 0 5%;
+    }
+
+    .title {
+        font-size: 2.5rem;
+    }
+
+    .highlight {
+        font-size: 1.2rem;
+    }
+
+    .add-event-btn, .display-event-btn {
+        font-size: 1.2rem;
+        padding: 10px 15px;
+    }
+
+    .logo-home {
+        top: 5px;
+        left: 5px;
+    }
+}
 </style>
    
