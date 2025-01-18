@@ -1,61 +1,59 @@
 <template>
-  <transition name="slide-left"> 
-    <div class="events-container background-image" v-if="isVisible"> 
-      <button @click="handleAuth" class="auth-btn" data-aos="fade-right" data-aos-duration="1500">
-        {{ isLoggedIn ? 'Logout' : 'Login' }}
-      </button>
-      <a @click="navigateWithTransition('Home')">
-        <img src="/logo.webp" alt="SJCET Logo" class="logo" height="90px" data-aos="fade-right" data-aos-duration="1500">
-      </a>
-      <br />
-      <h1 class="events-header" data-aos="fade-down" data-aos-duration="1500">LIST OF EVENTS</h1>
-      <div class="search-container" data-aos="fade-down" data-aos-duration="1500">
-        <input v-model="searchQuery" placeholder="Search for Events" />
+  <div class="events-container background-image" v-if="isVisible"> 
+    <button @click="handleAuth" class="auth-btn" data-aos="fade-right" data-aos-duration="1500">
+      {{ isLoggedIn ? 'Logout' : 'Login' }}
+    </button>
+    <a @click="navigateToHome">
+      <img src="/logo.webp" alt="SJCET Logo" class="logo" height="90px" data-aos="fade-right" data-aos-duration="1500">
+    </a>
+    <br />
+    <h1 class="events-header" data-aos="fade-down" data-aos-duration="1500">LIST OF EVENTS</h1>
+    <div class="search-container" data-aos="fade-down" data-aos-duration="1500">
+      <input v-model="searchQuery" placeholder="Search for Events" />
+    </div>
+    <div class="cards-container" data-aos="fade-up" data-aos-duration="2000">
+      <div v-if="isLoading" class="loading-spinner">
+        <div class="spinner"></div>
       </div>
-      <div class="cards-container" data-aos="fade-up" data-aos-duration="2000">
-        <div v-if="isLoading" class="loading-spinner">
-          <div class="spinner"></div>
-        </div>
-        <div
-          class="event-card"
-          v-for="event in filteredEvents"
-          :key="event.id"
-          data-aos="fade-up"
-          data-aos-duration="300"
-        >
-          <div class="card-header">
-            <div class="organizer-info">
-              <span class="dot" :style="{ backgroundColor: randomColor(event.clubName) }"></span>
-              <span class="organizer-name">{{ event.clubName }}</span>
-            </div>
-            <h2 class="card-title">{{ event.eventName }}</h2>
+      <div
+        class="event-card"
+        v-for="event in filteredEvents"
+        :key="event.id"
+        data-aos="fade-up"
+        data-aos-duration="300"
+      >
+        <div class="card-header">
+          <div class="organizer-info">
+            <span class="dot" :style="{ backgroundColor: randomColor(event.clubName) }"></span>
+            <span class="organizer-name">{{ event.clubName }}</span>
           </div>
-          <div class="card-content">
-            <p class="card-descr">{{ event.furthDetails }}</p>
-            <div>
-              <div class="dates-container">
-                <p>Register before:</p>
-                <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
-              </div>
-              <div class="dates-container">
-                <p>Event Date:</p>
-                <p>{{ formattedEventDate(event.date) }}</p>
-              </div>
-              <div class="card-footer">
-                <h4 class="regfee">Rs. {{ event.regFee }}</h4>
-                <button
-                  class="card-button"
-                  @click="$router.push({ name: 'EventDetails', params: { id: event.id } })"
-                >
-                  Details
-                </button>
-              </div>
+          <h2 class="card-title">{{ event.eventName }}</h2>
+        </div>
+        <div class="card-content">
+          <p class="card-descr">{{ event.furthDetails }}</p>
+          <div>
+            <div class="dates-container">
+              <p>Register before:</p>
+              <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+            </div>
+            <div class="dates-container">
+              <p>Event Date:</p>
+              <p>{{ formattedEventDate(event.date) }}</p>
+            </div>
+            <div class="card-footer">
+              <h4 class="regfee">Rs. {{ event.regFee }}</h4>
+              <button
+                class="card-button"
+                @click="navigateToDetails(event.id)"
+              >
+                Details
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script>
@@ -75,7 +73,7 @@ export default {
       isLoggedIn: false,
       isAdmin: false,
       isLoading: true,
-      isVisible: true  
+      isVisible: true
     };
   },
   mounted() {
@@ -106,9 +104,11 @@ export default {
       }
     },
     randomColor(organizer) {
-      const r = () => Math.floor(256 * Math.random());
-      const color = this.colorCache[organizer] || (this.colorCache[organizer] = `rgb(${r()}, ${r()}, ${r()})`);
-      return color;
+      if (!this.colorCache[organizer]) {
+        const r = () => Math.floor(256 * Math.random());
+        this.colorCache[organizer] = `rgb(${r()}, ${r()}, ${r()})`;
+      }
+      return this.colorCache[organizer];
     },
     formattedRegLastDate(dateString) {
       const dateObject = new Date(dateString);
@@ -156,12 +156,15 @@ export default {
         });
       }
     },
-    navigateWithTransition(routeName) {
-      this.isVisible = false; 
-      setTimeout(() => {
-        this.$router.push({ name: routeName });
-      }, 500); 
-    }, 
+    navigateToHome() {
+      this.$router.push({ name: 'Home' });
+    },
+    navigateToDetails(eventId) {
+      this.$router.push({ 
+        name: 'EventDetails', 
+        params: { id: eventId }
+      });
+    }
   },
   computed: {
     filteredEvents() {
@@ -177,35 +180,38 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 .background-image {
-  background-image: url('/bg1invert.jpg'); 
+  background-image: url('/bg1invert.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed; 
+  background-attachment: fixed;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
 }
 
 .events-container {
-  position: relative;
-  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: center;
   min-height: 100vh;
-  padding: 0; 
-  text-align: center;
-  overflow: hidden;
-  color: #BABABA; 
+  padding: 2em 1em;
+  position: relative;
+  width: 100%;
+  color: #f5f5dc;
+  z-index: 1;
 }
 
 .events-container::before {
   content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.6), transparent); 
-  z-index: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%);
+  z-index: -1;
 }
 
 .logo {
@@ -278,6 +284,23 @@ export default {
   flex-direction: column;
 }
 
+.organizer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.organizer-name {
+  font-size: 0.9rem;
+  color: #D4AF37;
+}
+
 .card-title {
   color: #D4AF37; 
   font-size: 1.4rem;
@@ -291,6 +314,13 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+.card-descr {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #BABABA;
 }
 
 .card-footer {
@@ -346,29 +376,6 @@ export default {
 .auth-btn:hover {
   background-color: #D4AF37; 
   color: #1A1A1A; 
-}
-
-.slide-left-enter-active,
-.slide-left-leave-active,
-.slide-right-enter-active,
-.slide-right-leave-active {
-    transition: transform 0.5s ease-in-out;
-}
-
-.slide-left-enter-from {
-    transform: translateX(-100%);
-}
-
-.slide-left-leave-to {
-    transform: translateX(100%);
-}
-
-.slide-right-enter-from {
-    transform: translateX(100%);
-}
-
-.slide-right-leave-to {
-    transform: translateX(-100%);
 }
 
 @media (max-width: 1024px) {
@@ -433,11 +440,6 @@ export default {
     font-size: 1.8rem;
   }
 
-  .main-desc {
-    font-size: 0.9rem;
-    margin-top: 5px;
-  }
-
   .card-button {
     padding: 5px 15px;
     font-size: 0.9rem;
@@ -451,5 +453,3 @@ export default {
   }
 }
 </style>
-
-
