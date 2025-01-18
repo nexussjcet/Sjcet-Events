@@ -177,11 +177,11 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 .background-image {
-  background-image: url('/bg1invert.jpg'); /* Background image */
+  background-image: url('/bg1invert.jpg'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed; /* Ensure the background stays fixed */
+  background-attachment: fixed; 
 }
 
 .events-container {
@@ -191,10 +191,10 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   min-height: 100vh;
-  padding: 0; /* Add padding for better spacing */
+  padding: 0; 
   text-align: center;
   overflow: hidden;
-  color: #BABABA; /* Light gray for base text */
+  color: #BABABA; 
 }
 
 .events-container::before {
@@ -204,7 +204,7 @@ export default {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.6), transparent); /* Dark overlay for readability */
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.6), transparent); 
   z-index: 0;
 }
 
@@ -346,6 +346,29 @@ export default {
 .auth-btn:hover {
   background-color: #D4AF37; 
   color: #1A1A1A; 
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition: transform 0.5s ease-in-out;
+}
+
+.slide-left-enter-from {
+    transform: translateX(-100%);
+}
+
+.slide-left-leave-to {
+    transform: translateX(100%);
+}
+
+.slide-right-enter-from {
+    transform: translateX(100%);
+}
+
+.slide-right-leave-to {
+    transform: translateX(-100%);
 }
 
 @media (max-width: 1024px) {
