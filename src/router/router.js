@@ -44,6 +44,12 @@ const routes = [
         path: '/no-access', 
         component: () => import('../components/NoAccess.vue') 
     },
+    { 
+        name: "RequestEvent", 
+        path: '/request-event', 
+        component: () => import('../components/RequestEvent.vue'),
+        meta: { requiresAuth: true }
+    },
 ];
 
 const router = createRouter({
