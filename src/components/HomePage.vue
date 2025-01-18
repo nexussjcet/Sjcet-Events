@@ -1,51 +1,49 @@
 <template>
-    <transition :name="transitionName">
-      <div class="home-container background-image" v-if="isVisible">
-        <button @click="handleAuth" class="auth-btn" data-aos="fade-right" data-aos-duration="1500">
-          {{ isLoggedIn ? 'Logout' : 'Login' }}
+  <div class="home-container background-image">
+    <button @click="handleAuth" class="auth-btn" data-aos="fade-right" data-aos-duration="1500">
+      {{ isLoggedIn ? 'Logout' : 'Login' }}
+    </button>
+    <a href="#">
+      <img
+        src="/logo.webp"
+        alt="SJCET Logo"
+        class="logo-home"
+        height="80px"
+        data-aos="fade-right"
+        data-aos-duration="1500"
+      />
+    </a>
+    <div class="main-container">
+      <h3 class="title" data-aos="fade-up" data-aos-duration="1500">SJCET EVENTS</h3>
+      <h3 class="highlight" data-aos="fade-up" data-aos-duration="2000">All college events at one place!</h3>
+      <br />
+      <p class="main-para" data-aos="fade-up" data-aos-duration="2200">
+        Stay updated on all campus happenings, from workshops to club meetings and sports events. Easily browse,
+        RSVP to ensure you never miss out on the excitement. Enjoy exploring and engaging with our vibrant college
+        community!
+      </p>
+      <div class="main-buttons" data-aos="fade-up" data-aos-duration="2500">
+        <button
+          class="add-event-btn"
+          v-if="isLoggedIn && isAdmin"
+          @click="navigateToRoute('AddEventForm')"
+        >
+          + Add Event
         </button>
-        <a href="#">
-          <img
-            src="/logo.webp"
-            alt="SJCET Logo"
-            class="logo-home"
-            height="80px"
-            data-aos="fade-right"
-            data-aos-duration="1500"
-          />
-        </a>
-        <div class="main-container">
-          <h3 class="title" data-aos="fade-up" data-aos-duration="1500">SJCET EVENTS</h3>
-          <h3 class="highlight" data-aos="fade-up" data-aos-duration="2000">All college events at one place!</h3>
-          <br />
-          <p class="main-para" data-aos="fade-up" data-aos-duration="2200">
-            Stay updated on all campus happenings, from workshops to club meetings and sports events. Easily browse,
-            RSVP to ensure you never miss out on the excitement. Enjoy exploring and engaging with our vibrant college
-            community!
-          </p>
-          <div class="main-buttons" data-aos="fade-up" data-aos-duration="2500">
-            <button
-              class="add-event-btn"
-              v-if="isLoggedIn && isAdmin"
-              @click="navigateWithTransition('AddEventForm')"
-            >
-              + Add Event
-            </button>
-            <button
-              class="display-event-btn"
-              @click="navigateWithTransition('DisplayEvents')"
-            >
-              Display Events
-            </button>
-          </div>
-        </div>
-        <footer class="footer">
-          <p>&copy; 2025 SJCET. All rights reserved.</p>
-        </footer>
+        <button
+          class="display-event-btn"
+          @click="navigateToRoute('DisplayEvents')"
+        >
+          Display Events
+        </button>
       </div>
-    </transition>
+    </div>
+    <footer class="footer">
+      <p>&copy; 2025 SJCET. All rights reserved.</p>
+    </footer>
+  </div>
 </template>
-   
+
 <script>
 import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
@@ -59,8 +57,6 @@ export default {
   setup() {
     const isLoggedIn = ref(false);
     const isAdmin = ref(false);
-    const isVisible = ref(true);
-    const transitionName = ref('slide-right');
     const router = useRouter();
 
     onMounted(async () => {
@@ -76,12 +72,8 @@ export default {
       });
     });
 
-    const navigateWithTransition = (routeName) => {
-      transitionName.value = routeName === 'DisplayEvents' ? 'slide-right' : 'slide-left';
-      isVisible.value = false;
-      setTimeout(() => {
-        router.push({ name: routeName });
-      }, 500);
+    const navigateToRoute = (routeName) => {
+      router.push({ name: routeName });
     };
 
     const handleAuth = async () => {
@@ -128,52 +120,56 @@ export default {
       isLoggedIn,
       isAdmin,
       handleAuth,
-      isVisible,
-      transitionName,
-      navigateWithTransition,
+      navigateToRoute,
     };
   },
 };
 </script>
 
 <style scoped>
+/* All existing styles remain the same, except removing transition-related styles */
 .background-image {
   background-image: url('/bg1.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
 }
 
 .home-container {
-  position: relative;
-  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: center;
   min-height: 100vh;
-  padding: 2em;
-  text-align: center;
-  overflow: hidden;
+  padding: 2em 1em;
+  position: relative;
+  width: 100%;
+  color: #f5f5dc;
+  z-index: 1;
 }
 
 .home-container::before {
   content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.4), transparent);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%);
   z-index: 0;
 }
 
 .logo-home {
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 20px;
   max-width: 120px;
   height: auto;
-  z-index: 1;
+  z-index: 10;
 }
 
 .main-container {
@@ -185,7 +181,8 @@ export default {
   max-width: 800px;
   margin: 0 auto;
   flex-grow: 1;
-  z-index: 1;
+  z-index: 2;
+  position: relative;
 }
 
 .title {
@@ -210,14 +207,14 @@ export default {
   color: #BABABA;
   font-family: 'Roboto', sans-serif;
   margin-bottom: 2em;
-  z-index: 1;
+  z-index: 2;
 }
 
 .main-buttons {
   display: flex;
   justify-content: center;
   gap: 1em;
-  z-index: 1;
+  z-index: 2;
 }
 
 .add-event-btn, .display-event-btn {
@@ -238,7 +235,7 @@ export default {
 }
 
 .auth-btn {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 20px;
   padding: 10px 20px;
@@ -249,6 +246,7 @@ export default {
   cursor: pointer;
   font-size: 1rem;
   transition: 0.3s;
+  z-index: 10;
 }
 
 .auth-btn:hover {
@@ -267,7 +265,7 @@ export default {
   left: 0;
   right: 0;
   margin-top: 30px;
-  z-index: 1;
+  z-index: 2;
   border-top: 2px solid #D4AF37;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
@@ -280,144 +278,132 @@ export default {
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
 }
 
-.slide-right-enter-active,
-.slide-right-leave-active,
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.5s ease-in-out;
-  position: absolute;
-  width: 100%;
-}
-
-.slide-right-enter-from {
-  transform: translateX(100%);
-}
-
-.slide-right-leave-to {
-  transform: translateX(-100%);
-}
-
-.slide-left-enter-from {
-  transform: translateX(-100%);
-}
-
-.slide-left-leave-to {
-  transform: translateX(100%);
-}
-
 @media (max-width: 1024px) {
-    .home-container {
-        padding: 1em;
-    }
+  .home-container {
+    padding: 1em;
+  }
 
-    .title {
-        font-size: 3rem;
-    }
+  .title {
+    font-size: 3rem;
+    margin-top: 60px;
+  }
 
-    .highlight {
-        font-size: 1.5rem;
-    }
+  .highlight {
+    font-size: 1.5rem;
+  }
 
-    .main-para {
-        font-size: 1rem;
-    }
+  .main-para {
+    font-size: 1rem;
+  }
 
-    .main-buttons {
-        flex-direction: column;
-    }
+  .main-buttons {
+    flex-direction: column;
+  }
 
-    .add-event-btn, .display-event-btn {
-        font-size: 1.2rem;
-        padding: 12px 20px;
-    }
+  .add-event-btn, .display-event-btn {
+    font-size: 1.2rem;
+    padding: 12px 20px;
+  }
 
-    .footer {
-        padding: 1.3em;
-    }
+  .footer {
+    padding: 1.3em;
+  }
 
-    .footer p {
-        font-size: 1rem;
-    }
+  .footer p {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
-    .home-container {
-        padding: 15px;
-    }
+  .home-container {
+    padding: 15px;
+  }
 
-    .logo-home {
-        width: 100px;
-    }
+  .logo-home {
+    width: 100px;
+  }
 
-    .title {
-        font-size: 2.5rem;
-    }
+  .title {
+    font-size: 2.5rem;
+    margin-top: 70px;
+  }
 
-    .highlight {
-        font-size: 1.2rem;
-    }
+  .highlight {
+    font-size: 1.2rem;
+  }
 
-    .main-para {
-        font-size: 1rem;
-    }
+  .main-para {
+    font-size: 1rem;
+  }
 
-    .main-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
+  .main-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
 
-    .add-event-btn, .display-event-btn {
-        font-size: 1.1rem;
-        padding: 10px 15px;
-        width: 100%;
-        margin: 5px 0;
-    }
+  .add-event-btn, .display-event-btn {
+    font-size: 1.1rem;
+    padding: 10px 15px;
+    width: 100%;
+    margin: 5px 0;
+  }
 
-    .footer {
-        padding: 1.2em;
-    }
+  .footer {
+    padding: 1.2em;
+  }
 
-    .footer p {
-        font-size: 0.95rem;
-    }
+  .footer p {
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 480px) {
-    .home-container {
-        padding: 0.5em;
-    }
+  .home-container {
+    padding: 0.5em;
+  }
 
-    .title {
-        font-size: 2rem;
-    }
+  .title {
+    font-size: 2rem;
+    margin-top: 80px;
+  }
 
-    .highlight {
-        font-size: 1rem;
-    }
+  .highlight {
+    font-size: 1rem;
+  }
 
-    .main-para {
-        font-size: 1rem;
-        padding: 0 5%;
-    }
+  .main-para {
+    font-size: 1rem;
+    padding: 0 5%;
+  }
 
-    .add-event-btn, .display-event-btn {
-        font-size: 1rem;
-        padding: 10px 15px;
-    }
+  .add-event-btn, .display-event-btn {
+    font-size: 1rem;
+    padding: 10px 15px;
+  }
 
-    .auth-btn {
-        font-size: 0.9rem;
-        padding: 8px 15px;
-        top: 10px;
-        right: 10px;
-    }
+  .auth-btn {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    top: 10px;
+    right: 10px;
+    position: fixed;
+    z-index: 10;
+  }
 
-    .footer {
-        padding: 1em;
-    }
+  .logo-home {
+    width: 100px;
+    top: 10px;
+    left: 10px;
+    position: fixed;
+    z-index: 10;
+  }
 
-    .footer p {
-        font-size: 0.9rem;
-    }
+  .footer {
+    padding: 1em;
+  }
+
+  .footer p {
+    font-size: 0.9rem;
+  }
 }
 </style>

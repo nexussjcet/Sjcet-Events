@@ -43,7 +43,6 @@
 import { db } from '../firebase';
 import { getDoc, doc } from 'firebase/firestore';
 import { toast } from "vue3-toastify";
-
 import 'primeicons/primeicons.css';
 
 export default {
@@ -70,11 +69,10 @@ export default {
       }
     },
     formatEventForCalendar() {
-      // Convert event time to proper format
       const [hours, minutes] = this.event.time.split(':');
       const eventDate = new Date(this.event.date);
       const startTime = new Date(eventDate.setHours(Number(hours), Number(minutes)));
-      const endTime = new Date(startTime.getTime() + (2 * 60 * 60 * 1000)); // Default 2 hours duration
+      const endTime = new Date(startTime.getTime() + (2 * 60 * 60 * 1000));
 
       return {
         title: this.event.eventName,
@@ -134,6 +132,31 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.home-container {
+  min-height: 100vh;
+  background-image: url('/bg1.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  padding: 2em 1em;
+  color: #f5f5dc;
+  position: relative;
+}
+
+.home-container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%);
+  z-index: 0;
+}
+
 .display-event-btn {
   border: none;
   font-size: 2rem;
@@ -141,10 +164,14 @@ export default {
   margin: 10px;
   cursor: pointer;
   background-color: transparent;
+  color: #D4AF37;
+  transition: 0.3s;
+  position: relative;
+  z-index: 2;
 }
 
 .display-event-btn:hover {
-  color: #0e8a39;
+  color: #E6D19D;
   text-decoration: underline;
 }
 
@@ -154,164 +181,190 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid #CBD5E1;
+  border: 2px solid #D4AF37;
   padding: 40px;
   border-radius: 12px;
-  background-color: #f7fafca3;
+  background-color: rgba(40, 40, 40, 0.9);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 2;
 }
 
 .event-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 2rem;
-  color: #0e8227;
-  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  font-size: 2.5rem;
+  color: #E6D19D;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+}
+
+.intro {
+  color: #D4AF37;
+  font-size: 1.2rem;
+  margin-bottom: 0.5em;
+}
+
+.mode {
+  color: #BABABA;
+  font-size: 1.1rem;
+  margin-top: 0.5em;
 }
 
 .mt {
   margin-top: 1.5em;
+  color: #BABABA;
 }
 
 .mentor-info {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: #BABABA;
 }
 
 .medium {
   font-weight: 500;
+  color: #D4AF37;
 }
 
 .reglink {
-  color: rgb(7, 7, 7);
+  color: #1A1A1A;
   text-decoration: none;
   font-weight: 500;
-  background: #18df43;
+  background: #D4AF37;
   padding: 0.5em 2em;
   margin-top: 2em;
   display: inline-block;
   border-radius: 8px;
   font-size: 1.5rem;
   font-weight: 400;
-  font-family: 'Poppins', sans-serif;
-  transition: 0.4s;
+  font-family: 'Roboto', sans-serif;
+  transition: 0.3s;
 }
 
 .reglink:hover {
-  background: #0d0d0d;
-  color: #18df43;
-  transition: 0.4s;
+  background: #E6D19D;
+  color: #1A1A1A;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
 }
 
 .calendar-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  margin: 2em 0;
 }
 
 .calendar-btn {
   padding: 0.5em 1em;
-  border: 2px solid #18df43;
+  border: 1px solid #D4AF37;
   border-radius: 8px;
-  background-color: #18df43;
-  color: #000;
+  background-color: transparent;
+  color: #D4AF37;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 1rem;
-  transition: 0.4s;
+  transition: 0.3s;
   display: flex;
   align-items: center;
   gap: 0.5em;
-} 
+}
 
 .calendar-btn:hover {
-  background-color: #0d0d0d;
-  color: #18df43;
+  background-color: #444444;
+  color: #E6D19D;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.calendar-btn i {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 991px) {
+  .event-container {
+    width: 80%;
+  }
+  
+  .home-container {
+    min-height: 100vh;
+    background-position: center;
+    background-size: cover;
+  }
 }
 
 @media (max-width: 768px) {
   .home-container {
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-}
-.display-event-btn {
-    border: none;
+    padding: 1em;
+  }
+
+  .event-container {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .event-title {
     font-size: 2rem;
-    padding: 5px;
-    margin: 10px;
-    cursor: pointer;
-    background-color: transparent;
-}
-.display-event-btn:hover {
-    color: #0e8a39;
-    text-decoration: underline;
-}
-.event-container {
-    width: 60%;
-    margin:     auto;
-    display: flex;
+  }
+
+  .display-event-btn {
+    font-size: 1.5rem;
+    margin: 5px;
+  }
+
+  .calendar-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .calendar-btn {
+    width: 100%;
     justify-content: center;
-    align-items: center;
-    border: 2px solid #CBD5E1;
-    padding: 40px;
-    border-radius: 12px;
-    background-color: #f7fafca3;
-}
-.event-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 2rem;
-    color: #0e8227;
-    font-weight: 500;
-}
-.mt {
-    margin-top: 24px;
-}
-.mentor-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.medium {
-    font-weight: 500;
-}
-.reglink {
-    color: rgb(7, 7, 7);
-    text-decoration: none;
-    font-weight: 500;
-    background: #18df43;
+    font-size: 0.9rem;
+  }
+
+  .reglink {
+    font-size: 1.2rem;
     padding: 10px 30px;
     margin: 30px auto;
     display: block;
     width: fit-content;
-    border-radius: 8px;
-    font-size: 1.5rem;
-    font-weight: 400;
-    font-family: 'Poppins', sans-serif;
-    transition: 0.4s;
+  }
+
+  .mt {
+    margin-top: 20px;
+  }
 }
-.reglink:hover {
-    background: #0d0d0d;
-    color: #18df43;
-    transition: 0.4s;
-}
-.calendar-buttons {
-  flex-direction: column;
-  align-items: center;
-}
-.calendar-btn {
-  width: 100%;
-  justify-content: center;
-}
-}
-@media (max-width: 991px) {
-    .event-container {
-        width: 80%;
-    }
-    .home-container {
-        display: absolute;
-        background-position: center;
-        background-size: cover;
-        height: 100vh;
-    }
+
+@media (max-width: 480px) {
+  .event-container {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .event-title {
+    font-size: 1.8rem;
+  }
+
+  .intro {
+    font-size: 1rem;
+  }
+
+  .mode {
+    font-size: 0.9rem;
+  }
+
+  .display-event-btn {
+    font-size: 1.2rem;
+  }
+
+  .calendar-btn {
+    font-size: 0.8rem;
+  }
+
+  .reglink {
+    font-size: 1.1rem;
+    padding: 8px 25px;
+  }
 }
 </style>
