@@ -12,43 +12,129 @@
       <div class="search-container" data-aos="fade-down" data-aos-duration="1500">
         <input v-model="searchQuery" placeholder="Search for Events" />
       </div>
-      <div class="cards-container" data-aos="fade-up" data-aos-duration="2000">
-        <div v-if="isLoading" class="loading-spinner">
-          <div class="spinner"></div>
-        </div>
-        <div
-          class="event-card"
-          v-for="event in filteredEvents"
-          :key="event.id"
-          data-aos="fade-up"
-          data-aos-duration="300"
+      <div class="action-buttons" data-aos="fade-down" data-aos-duration="1500">
+        <button 
+          v-if="isLoggedIn"
+          class="request-event-btn"
+          @click="$router.push({ name: 'RequestEvent' })"
         >
-          <div class="card-header">
-            <div class="organizer-info">
-              <span class="dot" :style="{ backgroundColor: randomColor(event.clubName) }"></span>
-              <span class="organizer-name">{{ event.clubName }}</span>
-            </div>
-            <h2 class="card-title">{{ event.eventName }}</h2>
+          Request New Event
+        </button>
+      </div>
+      <div class="events-section" data-aos="fade-up" data-aos-duration="2000">
+        <h2 class="section-title">Upcoming Events</h2>
+        <div class="cards-container">
+          <div v-if="isLoading" class="loading-spinner">
+            <div class="spinner"></div>
           </div>
-          <div class="card-content">
-            <p class="card-descr">{{ event.furthDetails }}</p>
-            <div>
-              <div class="dates-container">
-                <p>Register before:</p>
-                <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+          <div v-else-if="upcomingEvents.length === 0" class="no-events-message">
+            No upcoming events at the moment
+          </div>
+          <div
+            class="event-card"
+            v-for="event in upcomingEvents"
+            :key="event.id"
+            data-aos="fade-up"
+            data-aos-duration="300"
+          >
+            <div class="poster-container" v-if="event.posterURL">
+              <img 
+                :src="event.posterURL" 
+                alt="Event Poster" 
+                class="event-poster"
+                @error="handleImageError" 
+                @load="handleImageLoad"
+              />
+            </div>
+            <div class="card-header">
+              <div class="organizer-info">
+                <span class="dot" :style="{ backgroundColor: randomColor(event.clubName) }"></span>
+                <span class="organizer-name">{{ event.clubName }}</span>
               </div>
-              <div class="dates-container">
-                <p>Event Date:</p>
-                <p>{{ formattedEventDate(event.date) }}</p>
+              <h2 class="card-title">{{ event.eventName }}</h2>
+            </div>
+            <div class="card-content">
+              <p class="card-descr">{{ event.furthDetails }}</p>
+              <div>
+                <div class="dates-container">
+                  <p>Register before:</p>
+                  <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+                </div>
+                <div class="dates-container">
+                  <p>Event Date:</p>
+                  <p>{{ formattedEventDate(event.date) }}</p>
+                </div>
+                <div class="card-footer">
+                  <div class="event-status" :class="getEventStatus(event.date)">
+                    {{ getEventStatusText(event.date) }}
+                  </div>
+                  <button
+                    class="card-button"
+                    @click="$router.push({ name: 'EventDetails', params: { id: event.id } })"
+                  >
+                    Details
+                  </button>
+                </div>
               </div>
-              <div class="card-footer">
-                <h4 class="regfee">Rs. {{ event.regFee }}</h4>
-                <button
-                  class="card-button"
-                  @click="$router.push({ name: 'EventDetails', params: { id: event.id } })"
-                >
-                  Details
-                </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="events-section past-events" data-aos="fade-up" data-aos-duration="2000">
+        <h2 class="section-title">Past Events</h2>
+        <div class="cards-container">
+          <div v-if="isLoading" class="loading-spinner">
+            <div class="spinner"></div>
+          </div>
+          <div v-else-if="pastEvents.length === 0" class="no-events-message">
+            No past events to display
+          </div>
+          <div
+            class="event-card past"
+            v-for="event in pastEvents"
+            :key="event.id"
+            data-aos="fade-up"
+            data-aos-duration="300"
+          >
+            <div class="poster-container" v-if="event.posterURL">
+              <img 
+                :src="event.posterURL" 
+                alt="Event Poster" 
+                class="event-poster"
+                @error="handleImageError" 
+                @load="handleImageLoad"
+              />
+            </div>
+            <div class="card-header">
+              <div class="organizer-info">
+                <span class="dot" :style="{ backgroundColor: randomColor(event.clubName) }"></span>
+                <span class="organizer-name">{{ event.clubName }}</span>
+              </div>
+              <h2 class="card-title">{{ event.eventName }}</h2>
+            </div>
+            <div class="card-content">
+              <p class="card-descr">{{ event.furthDetails }}</p>
+              <div>
+                <div class="dates-container">
+                  <p>Register before:</p>
+                  <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+                </div>
+                <div class="dates-container">
+                  <p>Event Date:</p>
+                  <p>{{ formattedEventDate(event.date) }}</p>
+                </div>
+                <div class="card-footer">
+                  <div class="event-status" :class="getEventStatus(event.date)">
+                    {{ getEventStatusText(event.date) }}
+                  </div>
+                  <button
+                    class="card-button"
+                    @click="$router.push({ name: 'EventDetails', params: { id: event.id } })"
+                  >
+                    Details
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -98,7 +184,10 @@ export default {
       try {
         const eventCollection = collection(db, "events");
         const eventListSnapshot = await getDocs(eventCollection);
-        this.eventList = eventListSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        this.eventList = eventListSnapshot.docs.map(doc => {
+          const data = { id: doc.id, ...doc.data() };
+          return data;
+        });
         this.isLoading = false;
       } catch (error) {
         console.error("Error fetching events: ", error);
@@ -162,12 +251,39 @@ export default {
         this.$router.push({ name: routeName });
       }, 500); 
     }, 
+    getEventStatus(eventDate) {
+      const today = new Date();
+      const eventDateTime = new Date(eventDate);
+      return eventDateTime >= today ? 'ongoing' : 'over';
+    },
+
+    getEventStatusText(eventDate) {
+      return this.getEventStatus(eventDate) === 'ongoing' ? 'Ongoing' : 'Event Over';
+    },
+    handleImageError(e) {
+      console.error('Image failed to load:', e.target.src);
+    },
+    handleImageLoad() {
+      console.log('Image loaded successfully');
+    }
   },
   computed: {
     filteredEvents() {
       return this.eventList.filter(event => 
         event.eventName && event.eventName.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
+    },
+    upcomingEvents() {
+      const today = new Date();
+      return this.filteredEvents
+        .filter(event => new Date(event.date) >= today)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    },
+    pastEvents() {
+      const today = new Date();
+      return this.filteredEvents
+        .filter(event => new Date(event.date) < today)
+        .sort((a, b) => new Date(b.date) - new Date(a.date)); // Most recent first
     }
   }
 };
@@ -260,7 +376,8 @@ export default {
   border: 2px solid #D4AF37; 
   margin: 10px;
   width: 300px;
-  height: 350px;
+  height: auto;
+  min-height: 350px;
   padding: 16px;
   border-radius: 8px;
   position: relative; 
@@ -273,6 +390,7 @@ export default {
 }
 
 .card-header {
+  margin-top: 0;
   margin-bottom: 12px;
   display: flex;
   flex-direction: column;
@@ -450,6 +568,150 @@ export default {
     padding: 8px 18px;
   }
 }
+
+.event-status {
+  padding: 5px 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+  min-width: 100px;
+}
+
+.ongoing {
+  background-color: #18df43;
+  color: #000;
+}
+
+.over {
+  background-color: #ff4444;
+  color: #fff;
+}
+
+.card-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  color: #BABABA;
+}
+
+.action-buttons {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.request-event-btn {
+  background-color: transparent;
+  color: #D4AF37;
+  padding: 10px 25px;
+  border-radius: 8px;
+  border: 2px solid #D4AF37;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: 0.4s;
+  font-family: 'Roboto', sans-serif;
+}
+
+.request-event-btn:hover {
+  background-color: #D4AF37;
+  color: #1A1A1A;
+  transform: translateY(-2px);
+}
+
+.poster-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 1rem;
+}
+
+.event-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-poster {
+  transform: scale(1.05);
+}
+
+.events-section {
+  margin: 2rem 0;
+}
+
+.section-title {
+  color: #D4AF37;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: #D4AF37;
+  border-radius: 2px;
+}
+
+.past-events {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.past-events .event-card {
+  opacity: 0.8;
+  filter: grayscale(20%);
+  transition: all 0.3s ease;
+}
+
+.past-events .event-card:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+.no-events-message {
+  text-align: center;
+  color: #BABABA;
+  padding: 2rem;
+  background: rgba(26, 26, 26, 0.85);
+  border-radius: 8px;
+  border: 1px solid #D4AF37;
+  margin: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-title::after {
+    width: 60px;
+  }
+
+  .events-section {
+    margin: 1rem 0;
+  }
+
+  .past-events {
+    margin-top: 2rem;
+    padding-top: 1rem;
+  }
+}
 </style>
-
-
