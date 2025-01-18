@@ -265,7 +265,7 @@ export default {
 
 <style scoped>
 .background-image {
-  background-image: url('/bg1invert.jpg');
+  background-image: url('/bg1invert.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

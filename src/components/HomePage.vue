@@ -129,7 +129,7 @@ export default {
 <style scoped>
 /* All existing styles remain the same, except removing transition-related styles */
 .background-image {
-  background-image: url('/bg1.jpg');
+  background-image: url('/bg1.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

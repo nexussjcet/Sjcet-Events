@@ -136,7 +136,7 @@ export default {
 
 .home-container {
   min-height: 100vh;
-  background-image: url('/bg1.jpg');
+  background-image: url('/bg1.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

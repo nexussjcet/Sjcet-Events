@@ -180,7 +180,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 .background-image {
-  background-image: url('/bg1invert.jpg');
+  background-image: url('/bg1invert.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
