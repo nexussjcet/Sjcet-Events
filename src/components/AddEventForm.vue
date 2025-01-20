@@ -32,15 +32,11 @@
             <FormKit 
               type="date" 
               label="Date" 
-              validation="required|date|dateRange|afterToday"
+              validation="required|date|after:2024-12-31"
               :validation-messages="{
-                dateRange: 'Please select a date between 2024 and 2030',
-                afterToday: 'Event date must be after today'
+                after: 'Event date must be in 2025 or later'
               }"
-              :validation-rules="{
-                dateRange: validateDateRange,
-                afterToday: validateAfterToday
-              }"
+              min="2025-01-01"
               v-model="eventDetail.date"
             />
             <FormKit 
@@ -56,7 +52,6 @@
               label="Time"
               placeholder="00:00" 
               validation="required" 
-              help="Enter Time in 24 hours format"
               v-model="eventDetail.time"
             />
             <FormKit 
@@ -94,16 +89,12 @@
             />
             <FormKit 
               type="date" 
-              label="Last Date to register" 
-              validation="required|date|dateRange|beforeEventDate"
+              label="Last Date to register"
+              validation="required|date|after:2024-12-31"
               :validation-messages="{
-                dateRange: 'Please select a date between 2024 and 2030',
-                beforeEventDate: 'Registration deadline must be before the event date'
+                after: 'Registration date must be in 2025 or later'
               }"
-              :validation-rules="{
-                dateRange: validateDateRange,
-                beforeEventDate: (value) => validateBeforeEventDate(value, eventDetail.date)
-              }"
+              min="2025-01-01"
               v-model="eventDetail.regLastDate"
             />
           </FormKit>
@@ -275,28 +266,6 @@ export default {
         dangerouslyHTMLString: true
       });
     },
-
-    validateDateRange(value) {
-      if (!value) return true;
-      const date = new Date(value);
-      const year = date.getFullYear();
-      return year >= 2024 && year <= 2030;
-    },
-    
-    validateAfterToday(value) {
-      if (!value) return true;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const inputDate = new Date(value);
-      return inputDate >= today;
-    },
-    
-    validateBeforeEventDate(regDate, eventDate) {
-      if (!regDate || !eventDate) return true;
-      const registrationDate = new Date(regDate);
-      const actualEventDate = new Date(eventDate);
-      return registrationDate <= actualEventDate;
-    },
   },
 };
 </script>
@@ -358,7 +327,6 @@ form {
   border: 1px solid #b59d74;
 }
 
-/* FormKit Reset and Base Styles */
 :deep(.formkit-input) {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid #b59d74 !important;
@@ -375,7 +343,6 @@ form {
   box-shadow: 0 0 0 2px rgba(181, 157, 116, 0.3) !important;
 }
 
-/* Remove default FormKit styling */
 :deep(.formkit-outer) {
   margin-bottom: 1.5em;
 }
@@ -385,7 +352,6 @@ form {
   box-shadow: none !important;
 }
 
-/* Step Styles */
 :deep(.formkit-step) {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 0.5em;
@@ -400,7 +366,6 @@ form {
   text-align: center;
 }
 
-/* Progress Bar Styles */
 :deep(.formkit-step-progress) {
   margin: 0 0 2em 0;
   padding: 1em;
@@ -417,7 +382,6 @@ form {
   background: rgba(181, 157, 116, 0.2);
 }
 
-/* Form Elements */
 :deep(.formkit-label) {
   color: #f5f5dc;
   margin-bottom: 0.5em;
@@ -434,10 +398,8 @@ form {
   color: #ff6b6b;
   font-size: 0.875em;
   margin-top: 0.25em;
-  font-weight: 500;
 }
 
-/* Button Styles */
 :deep(.formkit-input[type="submit"]),
 :deep(.formkit-input[type="button"]) {
   background: #b59d74;
@@ -453,7 +415,6 @@ form {
   background: #d4b995;
 }
 
-/* Mobile Styles */
 @media (max-width: 768px) {
   form {
     padding: 1em;
@@ -522,7 +483,6 @@ form {
   }
 }
 
-/* Status Message Styles */
 .status-message {
   position: fixed;
   top: 20px;
@@ -556,17 +516,4 @@ form {
     opacity: 1;
   }
 }
-
-:deep(.formkit-input[data-validation-state="invalid"]) {
-  border-color: #ff6b6b !important;
-  background-color: rgba(255, 107, 107, 0.1);
-}
-
-:deep(.formkit-messages) {
-  color: #ff6b6b;
-  font-size: 0.875em;
-  margin-top: 0.25em;
-  font-weight: 500;
-}
-
 </style>
