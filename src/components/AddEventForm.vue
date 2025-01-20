@@ -32,7 +32,11 @@
             <FormKit 
               type="date" 
               label="Date" 
-              validation="required"
+              validation="required|date|after:2024-12-31"
+              :validation-messages="{
+                after: 'Event date must be in 2025 or later'
+              }"
+              min="2025-01-01"
               v-model="eventDetail.date"
             />
             <FormKit 
@@ -48,7 +52,6 @@
               label="Time"
               placeholder="00:00" 
               validation="required" 
-              help="Enter Time in 24 hours format"
               v-model="eventDetail.time"
             />
             <FormKit 
@@ -87,7 +90,11 @@
             <FormKit 
               type="date" 
               label="Last Date to register"
-              validation="required"
+              validation="required|date|after:2024-12-31"
+              :validation-messages="{
+                after: 'Registration date must be in 2025 or later'
+              }"
+              min="2025-01-01"
               v-model="eventDetail.regLastDate"
             />
           </FormKit>
@@ -320,7 +327,6 @@ form {
   border: 1px solid #b59d74;
 }
 
-/* FormKit Reset and Base Styles */
 :deep(.formkit-input) {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid #b59d74 !important;
@@ -337,7 +343,6 @@ form {
   box-shadow: 0 0 0 2px rgba(181, 157, 116, 0.3) !important;
 }
 
-/* Remove default FormKit styling */
 :deep(.formkit-outer) {
   margin-bottom: 1.5em;
 }
@@ -347,7 +352,6 @@ form {
   box-shadow: none !important;
 }
 
-/* Step Styles */
 :deep(.formkit-step) {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 0.5em;
@@ -362,7 +366,6 @@ form {
   text-align: center;
 }
 
-/* Progress Bar Styles */
 :deep(.formkit-step-progress) {
   margin: 0 0 2em 0;
   padding: 1em;
@@ -379,7 +382,6 @@ form {
   background: rgba(181, 157, 116, 0.2);
 }
 
-/* Form Elements */
 :deep(.formkit-label) {
   color: #f5f5dc;
   margin-bottom: 0.5em;
@@ -398,7 +400,6 @@ form {
   margin-top: 0.25em;
 }
 
-/* Button Styles */
 :deep(.formkit-input[type="submit"]),
 :deep(.formkit-input[type="button"]) {
   background: #b59d74;
@@ -414,7 +415,6 @@ form {
   background: #d4b995;
 }
 
-/* Mobile Styles */
 @media (max-width: 768px) {
   form {
     padding: 1em;
@@ -516,5 +516,4 @@ form {
     opacity: 1;
   }
 }
-
 </style>
