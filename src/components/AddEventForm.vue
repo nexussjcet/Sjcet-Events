@@ -32,7 +32,15 @@
             <FormKit 
               type="date" 
               label="Date" 
-              validation="required" 
+              validation="required|date|dateRange|afterToday"
+              :validation-messages="{
+                dateRange: 'Please select a date between 2024 and 2030',
+                afterToday: 'Event date must be after today'
+              }"
+              :validation-rules="{
+                dateRange: validateDateRange,
+                afterToday: validateAfterToday
+              }"
               v-model="eventDetail.date"
             />
             <FormKit 
@@ -87,7 +95,15 @@
             <FormKit 
               type="date" 
               label="Last Date to register" 
-              validation="required"
+              validation="required|date|dateRange|beforeEventDate"
+              :validation-messages="{
+                dateRange: 'Please select a date between 2024 and 2030',
+                beforeEventDate: 'Registration deadline must be before the event date'
+              }"
+              :validation-rules="{
+                dateRange: validateDateRange,
+                beforeEventDate: (value) => validateBeforeEventDate(value, eventDetail.date)
+              }"
               v-model="eventDetail.regLastDate"
             />
           </FormKit>
@@ -258,7 +274,29 @@ export default {
         position: "top-center",
         dangerouslyHTMLString: true
       });
-    }
+    },
+
+    validateDateRange(value) {
+      if (!value) return true;
+      const date = new Date(value);
+      const year = date.getFullYear();
+      return year >= 2024 && year <= 2030;
+    },
+    
+    validateAfterToday(value) {
+      if (!value) return true;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const inputDate = new Date(value);
+      return inputDate >= today;
+    },
+    
+    validateBeforeEventDate(regDate, eventDate) {
+      if (!regDate || !eventDate) return true;
+      const registrationDate = new Date(regDate);
+      const actualEventDate = new Date(eventDate);
+      return registrationDate <= actualEventDate;
+    },
   },
 };
 </script>
@@ -396,6 +434,7 @@ form {
   color: #ff6b6b;
   font-size: 0.875em;
   margin-top: 0.25em;
+  font-weight: 500;
 }
 
 /* Button Styles */
@@ -516,6 +555,18 @@ form {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+:deep(.formkit-input[data-validation-state="invalid"]) {
+  border-color: #ff6b6b !important;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+:deep(.formkit-messages) {
+  color: #ff6b6b;
+  font-size: 0.875em;
+  margin-top: 0.25em;
+  font-weight: 500;
 }
 
 </style>
