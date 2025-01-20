@@ -30,25 +30,24 @@
           <h2 class="card-title">{{ event.eventName }}</h2>
         </div>
         <div class="card-content">
-          <p class="card-descr">{{ event.furthDetails }}</p>
           <div>
-            <div class="dates-container">
-              <p>Register before:</p>
-              <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+            <p class="card-descr">{{ event.furthDetails }}</p>
+            <div class="dates-info">
+              <div class="dates-container">
+                <p>Register before:</p>
+                <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+              </div>
+              <div class="dates-container">
+                <p>Event Date:</p>
+                <p>{{ formattedEventDate(event.date) }}</p>
+              </div>
             </div>
-            <div class="dates-container">
-              <p>Event Date:</p>
-              <p>{{ formattedEventDate(event.date) }}</p>
-            </div>
-            <div class="card-footer">
-              <h4 class="regfee">Rs. {{ event.regFee }}</h4>
-              <button
-                class="card-button"
-                @click="navigateToDetails(event.id)"
-              >
-                Details
-              </button>
-            </div>
+          </div>
+          <div class="card-footer">
+            <h4 class="regfee">Rs. {{ event.regFee }}</h4>
+            <button class="card-button" @click="navigateToDetails(event.id)">
+              Details
+            </button>
           </div>
         </div>
       </div>
@@ -261,16 +260,18 @@ export default {
 }
 
 .event-card {
-  background-color: rgba(26, 26, 26, 0.85); 
-  color: #BABABA; 
-  border: 2px solid #D4AF37; 
+  background-color: rgba(26, 26, 26, 0.85);
+  color: #BABABA;
+  border: 2px solid #D4AF37;
   margin: 10px;
   width: 300px;
-  height: 350px;
+  min-height: 380px;
   padding: 16px;
   border-radius: 8px;
-  position: relative; 
+  position: relative;
   transition: box-shadow 0.4s ease-in-out, transform 0.4s ease-in-out;
+  display: flex;
+  flex-direction: column;
 }
 
 .event-card:hover {
@@ -310,10 +311,10 @@ export default {
 }
 
 .card-content {
-  flex-grow: 1; 
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  flex-grow: 1;
+  justify-content: space-between;
 }
 
 .card-descr {
@@ -323,16 +324,28 @@ export default {
   color: #BABABA;
 }
 
+.dates-info {
+  margin-bottom: 60px;
+}
+
+.dates-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
 .card-footer {
   position: absolute;
-  bottom: 16px; 
+  bottom: 16px;
   left: 16px;
   right: 16px;
   display: flex;
   justify-content: space-between;
-  align-items: center; 
-  font-size: 1rem;
-  color: #BABABA;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .card-button {
@@ -353,11 +366,6 @@ export default {
 
 .regfee {
   color: #D4AF37; 
-}
-
-.dates-container {
-  margin-top: 10px; 
-  flex-grow: 0; 
 }
 
 .auth-btn {
@@ -408,16 +416,23 @@ export default {
   }
 
   .event-card {
-    width: 100%;
-    height: 320px;
+    width: calc(100% - 20px);
+    min-height: 360px;
+    margin: 10px;
   }
 
-  .events-header {
-    font-size: 2rem;
+  .card-content {
+    gap: 15px;
   }
 
-  .card-button {
-    padding: 5px 20px;
+  .dates-container {
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 0.9rem;
+  }
+
+  .card-footer {
+    padding-top: 8px;
   }
 
   .auth-btn {
@@ -432,17 +447,28 @@ export default {
   }
 
   .event-card {
-    width: 100%;
-    height: 280px;
+    min-height: 340px;
   }
 
-  .events-header {
-    font-size: 1.8rem;
+  .card-descr {
+    font-size: 0.85rem;
+  }
+
+  .dates-container {
+    font-size: 0.8rem;
+  }
+
+  .card-footer {
+    padding-top: 6px;
+  }
+
+  .regfee {
+    font-size: 0.9rem;
   }
 
   .card-button {
-    padding: 5px 15px;
-    font-size: 0.9rem;
+    padding: 4px 12px;
+    font-size: 0.85rem;
   }
 
   .auth-btn {
