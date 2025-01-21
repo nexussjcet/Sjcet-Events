@@ -44,7 +44,7 @@
             </div>
           </div>
           <div class="card-footer">
-            <h4 class="regfee">Rs. {{ checkIsOver(event.regLastDate,event.date, event.regFee)}}</h4>
+            <h4 class="regfee">{{ checkIsOver(event.regLastDate,event.date, event.regFee)}}</h4>
             <button class="card-button" @click="navigateToDetails(event.id)">
               Details
             </button>
@@ -125,7 +125,7 @@ export default {
       const currentDateObj = new Date();
 
       if(regDateObj>currentDateObj){
-        return `${price>0?price:'Free'}`
+        return `${price>0?`Rs. ${price}`:'Free'}`
       }else if(currentDateObj > regDateObj && eventDateObj > currentDateObj){
         return `Registration Over`
       }
