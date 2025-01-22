@@ -5,27 +5,113 @@
     </button> 
     <div class="event-container" data-aos="fade-up" data-aos-duration="2000">
       <div>
-        <p class="intro" v-if="!event.collab">{{ event.clubName }}</p>
-        <p class="intro" v-else>{{ event.clubName }} / {{ event.collab }}</p>
-        <h1 class="event-title">{{ event.eventName }}</h1>
-        <p class="mode">{{ event.mode }}</p>
-        <p class="mt">{{ event.eventDesc }}</p>
-        <p class="date mt"><i class="pi pi-calendar"></i> {{ event.date }}</p>
-        <p><i class="pi pi-clock"></i> {{ event.time }}</p>
-        <p><i class="pi pi-map-marker"></i> {{ event.venue }}</p>
-        <p class="mt">About the event: {{ event.furthDetails }}</p>
-        <p class="mt">Certificates issued: {{ event.certificates }}</p>
+        <button v-if="isAdmin" @click="toggleEdit" class="edit-btn">
+          <i class="pi" :class="isEditing ? 'pi-times' : 'pi-pencil'"></i>
+          {{ isEditing ? 'Cancel' : 'Edit' }}
+        </button>
+
+        <!-- Club Name -->
+        <p class="intro" v-if="!event.collab">
+          <span v-if="!isEditing">{{ event.clubName }}</span>
+          <input v-else v-model="editedEvent.clubName" type="text" placeholder="Club Name">
+        </p>
+        <p class="intro" v-else>
+          <span v-if="!isEditing">{{ event.clubName }} / {{ event.collab }}</span>
+          <div v-else class="collab-inputs">
+            <input v-model="editedEvent.clubName" type="text" placeholder="Club Name">
+            <input v-model="editedEvent.collab" type="text" placeholder="Collaborator">
+          </div>
+        </p>
+
+        <!-- Event Name -->
+        <h1 class="event-title">
+          <span v-if="!isEditing">{{ event.eventName }}</span>
+          <input v-else v-model="editedEvent.eventName" type="text" placeholder="Event Name">
+        </h1>
+
+        <!-- Mode -->
+        <p class="mode">
+          <span v-if="!isEditing">{{ event.mode }}</span>
+          <input v-else v-model="editedEvent.mode" type="text" placeholder="Mode">
+        </p>
+
+        <!-- Event Description -->
+        <p class="mt">
+          <span v-if="!isEditing">{{ event.eventDesc }}</span>
+          <textarea v-else v-model="editedEvent.eventDesc" placeholder="Event Description"></textarea>
+        </p>
+
+        <!-- Date and Time -->
+        <p class="date mt">
+          <i class="pi pi-calendar"></i>
+          <span v-if="!isEditing">{{ event.date }}</span>
+          <input v-else v-model="editedEvent.date" type="date">
+        </p>
+        <p>
+          <i class="pi pi-clock"></i>
+          <span v-if="!isEditing">{{ event.time }}</span>
+          <input v-else v-model="editedEvent.time" type="time">
+        </p>
+
+        <!-- Venue -->
+        <p>
+          <i class="pi pi-map-marker"></i>
+          <span v-if="!isEditing">{{ event.venue }}</span>
+          <input v-else v-model="editedEvent.venue" type="text" placeholder="Venue">
+        </p>
+
+        <!-- Further Details -->
+        <p class="mt">
+          About the event: 
+          <span v-if="!isEditing">{{ event.furthDetails }}</span>
+          <textarea v-else v-model="editedEvent.furthDetails" placeholder="Further Details"></textarea>
+        </p>
+
+        <!-- Certificates -->
+        <p class="mt">
+          Certificates issued: 
+          <span v-if="!isEditing">{{ event.certificates }}</span>
+          <input v-else v-model="editedEvent.certificates" type="text" placeholder="Certificates">
+        </p>
+
+        <!-- Mentor -->
         <div class="mentor-info mt">
           <p class="medium">Mentor: </p>
           <div>
-            <p class="medium">{{ event.mentor }}</p>
+            <span v-if="!isEditing">{{ event.mentor }}</span>
+            <input v-else v-model="editedEvent.mentor" type="text" placeholder="Mentor Name">
           </div>
         </div>
-        <p class="mt">Last Date to register: {{ event.regLastDate }}</p>
-        <p>Registration Fee: {{ event.regFee }}</p>
+
+        <!-- Registration Details -->
+        <p class="mt">
+          Last Date to register: 
+          <span v-if="!isEditing">{{ event.regLastDate }}</span>
+          <input v-else v-model="editedEvent.regLastDate" type="date">
+        </p>
+        <p>
+          Registration Fee: 
+          <span v-if="!isEditing">{{ event.regFee }}</span>
+          <input v-else v-model="editedEvent.regFee" type="number" placeholder="Registration Fee">
+        </p>
+
+        <!-- Contact Info -->
         <p class="medium mt">Contact:</p>
-        <p>{{ event.organizerName }}: {{ event.phone }}</p>
-        <div class="calendar-buttons mt">
+        <p>
+          <span v-if="!isEditing">{{ event.organizerName }}: {{ event.phone }}</span>
+          <div v-else class="contact-inputs">
+            <input v-model="editedEvent.organizerName" type="text" placeholder="Organizer Name">
+            <input v-model="editedEvent.phone" type="tel" placeholder="Phone Number">
+          </div>
+        </p>
+
+        <!-- Registration Link -->
+        <p v-if="isEditing" class="mt">
+          Registration Link:
+          <input v-model="editedEvent.regLink" type="url" placeholder="Registration Link">
+        </p>
+
+        <div class="calendar-buttons mt" v-if="!isEditing">
           <button class="calendar-btn" @click="addToGoogleCalendar">
             <i class="pi pi-calendar"></i> Add to Google Calendar
           </button>
@@ -33,26 +119,35 @@
             <i class="pi pi-calendar"></i> Add to Outlook Calendar
           </button>
         </div>
-        <a :href="event.regLink" target="_blank" class="reglink">Register</a>
+
+        <a v-if="!isEditing" :href="event.regLink" target="_blank" class="reglink">Register</a>
+
+        <div v-if="isEditing" class="edit-actions">
+          <button @click="saveChanges" class="save-btn">Save Changes</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { db } from '../firebase';
-import { getDoc, doc } from 'firebase/firestore';
+import { db, auth, updateDoc, doc } from '../firebase';
+import { getDoc } from 'firebase/firestore';
 import { toast } from "vue3-toastify";
 import 'primeicons/primeicons.css';
 
 export default {
   data() {
     return {
-      event: {}
+      event: {},
+      isAdmin: false,
+      isEditing: false,
+      editedEvent: {}
     };
   },
   created() {
     this.fetchEventDetails();
+    this.checkAdminStatus();
   },
   methods: {
     async fetchEventDetails() {
@@ -63,9 +158,59 @@ export default {
           this.event = eventDoc.data();
         } else {
           console.error('Event not found');
+          toast.error("Event not found", {
+            theme: "dark",
+            position: "top-center"
+          });
         }
       } catch (error) {
         console.error('Error fetching event details:', error);
+        toast.error("Error loading event details", {
+          theme: "dark",
+          position: "top-center"
+        });
+      }
+    },
+    async checkAdminStatus() {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          this.isAdmin = userDoc.exists() && userDoc.data().role === 'admin';
+        } else {
+          this.isAdmin = false;
+        }
+      });
+    },
+    toggleEdit() {
+      if (!this.isEditing) {
+        this.editedEvent = { ...this.event };
+      }
+      this.isEditing = !this.isEditing;
+    },
+    async saveChanges() {
+      try {
+        const eventId = this.$route.params.id;
+        const eventRef = doc(db, "events", eventId);
+        
+        // Validate required fields
+        if (!this.editedEvent.eventName || !this.editedEvent.clubName) {
+          throw new Error("Event name and club name are required");
+        }
+
+        await updateDoc(eventRef, this.editedEvent);
+        this.event = { ...this.editedEvent };
+        this.isEditing = false;
+        
+        toast.success("Event updated successfully", {
+          theme: "dark",
+          position: "top-center"
+        });
+      } catch (error) {
+        console.error('Error updating event:', error);
+        toast.error(error.message || "Error updating event", {
+          theme: "dark",
+          position: "top-center"
+        });
       }
     },
     formatEventForCalendar() {
@@ -280,6 +425,82 @@ export default {
   font-size: 1.1rem;
 }
 
+.collab-inputs, .contact-inputs {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+textarea {
+  background-color: rgba(26, 26, 26, 0.9);
+  color: #D4AF37;
+  border: 1px solid #D4AF37;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  min-height: 100px;
+  margin: 4px 0;
+  font-family: inherit;
+  resize: vertical;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="date"],
+input[type="time"] {
+  background-color: rgba(26, 26, 26, 0.9);
+  color: #D4AF37;
+  border: 1px solid #D4AF37;
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.edit-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: transparent;
+  color: #D4AF37;
+  border: 1px solid #D4AF37;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+}
+
+.edit-btn:hover {
+  background-color: #D4AF37;
+  color: #1A1A1A;
+}
+
+.edit-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.save-btn {
+  background-color: #D4AF37;
+  color: #1A1A1A;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background-color: #E6D19D;
+}
+
 @media (max-width: 991px) {
   .event-container {
     width: 80%;
@@ -367,4 +588,4 @@ export default {
     padding: 8px 25px;
   }
 }
-</style>
+</style> 
