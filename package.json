@@ -29,6 +29,6 @@
     "@types/aos": "^3.0.7",
     "@vitejs/plugin-vue": "^5.0.5",
     "json-server": "^0.17.4",
-    "vite": "^5.4.11"
+    "vite": "^5.4.14"
   }
 }
