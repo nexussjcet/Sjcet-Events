@@ -44,7 +44,7 @@
             </div>
           </div>
           <div class="card-footer">
-            <h4 class="regfee">Rs. {{ event.regFee }}</h4>
+            <h4 class="regfee">{{ checkIsOver(event.regLastDate,event.date, event.regFee)}}</h4>
             <button class="card-button" @click="navigateToDetails(event.id)">
               Details
             </button>
@@ -119,6 +119,22 @@ export default {
       const month = dateObject.toLocaleDateString('en-GB', { month: 'short' });
       return `${dateObject.getDate()} ${month} ${dateObject.getFullYear()}`;
     },
+    checkIsOver(regDate,eventDate,price){
+      const regDateObj = new Date(regDate)
+      const eventDateObj = new Date(eventDate)
+      const currentDateObj = new Date();
+
+      if(regDateObj>currentDateObj){
+        return `${price>0?`Rs. ${price}`:'Free'}`
+      }else if(currentDateObj > regDateObj && eventDateObj > currentDateObj){
+        return `Registration Over`
+      }
+      else{
+        return `Event Over`
+      }
+
+    }
+    ,
     async handleAuth() {
       if (this.isLoggedIn) {
         await this.handleLogout();
