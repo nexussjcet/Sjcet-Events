@@ -24,27 +24,27 @@
       >
         <div class="card-header">
           <div class="organizer-info">
-            <span class="dot" :style="{ backgroundColor: randomColor(event.clubName) }"></span>
-            <span class="organizer-name">{{ event.clubName }}</span>
+            <span class="dot" :style="{ backgroundColor: randomColor(event.club_name) }"></span>
+            <span class="organizer-name">{{ event.club_name }}</span>
           </div>
-          <h2 class="card-title">{{ event.eventName }}</h2>
+          <h2 class="card-title">{{ event.event_name }}</h2>
         </div>
         <div class="card-content">
           <div>
-            <p class="card-descr">{{ event.furthDetails }}</p>
+            <p class="card-descr">{{ event.further_details }}</p>
             <div class="dates-info">
               <div class="dates-container">
                 <p>Register before:</p>
-                <p>{{ formattedRegLastDate(event.regLastDate) }}</p>
+                <p>{{ formattedRegLastDate(event.registration_last_date) }}</p>
               </div>
               <div class="dates-container">
                 <p>Event Date:</p>
-                <p>{{ formattedEventDate(event.date) }}</p>
+                <p>{{ formattedEventDate(event.event_date) }}</p>
               </div>
             </div>
           </div>
           <div class="card-footer">
-            <h4 class="regfee">{{ checkIsOver(event.regLastDate,event.date, event.regFee)}}</h4>
+            <h4 class="regfee">{{ checkIsOver(event.registration_last_date,event.event_date, event.registration_fee)}}</h4>
             <button class="card-button" @click="navigateToDetails(event.id)">
               Details
             </button>
@@ -168,7 +168,7 @@ export default {
   computed: {
     filteredEvents() {
       return this.eventList.filter(event => 
-        event.eventName && event.eventName.toLowerCase().includes(this.searchQuery.toLowerCase())
+        event.event_name && event.event_name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     }
   }

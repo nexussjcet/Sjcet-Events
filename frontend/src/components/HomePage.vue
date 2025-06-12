@@ -36,6 +36,20 @@
         >
           Display Events
         </button>
+        <button
+          v-if="isLoggedIn && isAdmin"
+          class="dashboard-btn"
+          @click="navigateToRoute('AdminDashboard')"
+        >
+          Admin Dashboard
+        </button>
+        <button
+          v-if="isLoggedIn && isOrganizer"
+          class="dashboard-btn"
+          @click="navigateToRoute('OrganizerDashboard')"
+        >
+          Organizer Dashboard
+        </button>
       </div>
     </div>
     <footer class="footer">
@@ -54,6 +68,7 @@ export default {
   setup() {
     const isLoggedIn = ref(false);
     const isAdmin = ref(false);
+    const isOrganizer = ref(false);
     const router = useRouter();
 
     onMounted(async () => {
@@ -63,8 +78,10 @@ export default {
           // Fetch user profile from Supabase
           const { data, error } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
           isAdmin.value = data && data.role === 'admin';
+          isOrganizer.value = data && data.role === 'organizer';
         } else {
           isAdmin.value = false;
+          isOrganizer.value = false;
         }
       });
     });
@@ -89,6 +106,7 @@ export default {
           position: "top-center",
         });
         isAdmin.value = false;
+        isOrganizer.value = false;
       } catch (error) {
         toast.error("Error logging out", {
           theme: "dark",
@@ -100,6 +118,7 @@ export default {
     return {
       isLoggedIn,
       isAdmin,
+      isOrganizer,
       handleAuth,
       navigateToRoute,
     };
@@ -257,6 +276,21 @@ export default {
   margin: 0;
   font-family: 'Roboto', sans-serif;
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-btn {
+  background: #9C27B0;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-btn:hover {
+  background: #7B1FA2;
 }
 
 @media (max-width: 1024px) {

@@ -11,18 +11,20 @@ import '@formkit/addons/css/multistep'
 
 let app;
 
+// Create and mount the app immediately
+app = createApp(App)
+  .use(router)
+  .use(formKitPlugin, defaultConfig({
+    plugins: [
+      createMultiStepPlugin(),
+      createAutoHeightTextareaPlugin()
+    ]
+  }));
+app.mount('#app');
+
+// Handle auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
-  if (!app) {
-    app = createApp(App)
-      .use(router)
-      .use(formKitPlugin, defaultConfig({
-        plugins: [
-          createMultiStepPlugin(),
-          createAutoHeightTextareaPlugin()
-        ]
-      }));
-    app.mount('#app');
-  }
+  console.log('Auth state changed:', event, session);
   if (session && session.user) {
     console.log('User authenticated:', session.user);
   } else {

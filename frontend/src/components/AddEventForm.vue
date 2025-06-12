@@ -20,14 +20,14 @@
               label="Organizing Club" 
               validation="required"
               placeholder="Enter Name of your club"
-              v-model="eventDetail.clubName"
+              v-model="eventDetail.club_name"
             />
             <FormKit 
               type="text" 
               label="Event Name" 
               validation="required"
               placeholder="Enter Name of Event"
-              v-model="eventDetail.eventName"
+              v-model="eventDetail.event_name"
             />
             <FormKit 
               type="date" 
@@ -37,7 +37,7 @@
                 after: 'Event date must be in 2025 or later'
               }"
               min="2025-01-01"
-              v-model="eventDetail.date"
+              v-model="eventDetail.event_date"
             />
             <FormKit 
               type="select" 
@@ -52,7 +52,7 @@
               label="Time"
               placeholder="00:00" 
               validation="required" 
-              v-model="eventDetail.time"
+              v-model="eventDetail.event_time"
             />
             <FormKit 
               type="text" 
@@ -71,14 +71,14 @@
               placeholder="Enter registration fee"
               validation="required"
               help="Enter 0, if the event is free of cost"
-              v-model="eventDetail.regFee"
+              v-model="eventDetail.registration_fee"
             />
             <FormKit
               type="url"
               label="Registration Link"
               placeholder="https://www.example.com..."
               validation="required|url"
-              v-model="eventDetail.regLink"
+              v-model="eventDetail.registration_link"
             />
             <FormKit 
               type="radio" 
@@ -95,7 +95,7 @@
                 after: 'Registration date must be in 2025 or later'
               }"
               min="2025-01-01"
-              v-model="eventDetail.regLastDate"
+              v-model="eventDetail.registration_last_date"
             />
           </FormKit>
 
@@ -105,19 +105,19 @@
               type="text" 
               label="Speaker/Mentor Name (Optional)"
               placeholder="Enter the speaker's/mentor's name"
-              v-model="eventDetail.mentor"
+              v-model="eventDetail.mentor_name"
             />
             <FormKit
               type="textarea"
               label="About the speaker/mentor(Optional)"
               placeholder="Write a short description about the speaker"
-              v-model="eventDetail.aboutMentor"
+              v-model="eventDetail.mentor_bio"
             />
             <FormKit 
               type="textarea" 
               label="In collaboration with (Optional)"
               placeholder="Write about collaborators"
-              v-model="eventDetail.collab"
+              v-model="eventDetail.collaborators"
             />
           </FormKit>
 
@@ -128,14 +128,14 @@
               type="textarea" 
               label="Event Description (Optional)" 
               placeholder="Enter a short description of the event"
-              v-model="eventDetail.eventDesc"
+              v-model="eventDetail.event_description"
             />
             <FormKit 
               type="text" 
               label="Name of Organizer" 
               validation="required"
               placeholder="Enter your name"
-              v-model="eventDetail.organizerName"
+              v-model="eventDetail.organizer_name"
             />
             <FormKit
               type="tel"
@@ -146,7 +146,7 @@
                 matches: 'Phone number must be 10 digits long',
               }"
               validation-visibility="dirty"
-              v-model="eventDetail.phone"
+              v-model="eventDetail.organizer_phone"
             />
             
             <template #stepNext>
@@ -182,23 +182,23 @@ export default {
   data() {
     return {
       eventDetail: {
-        clubName: '',
-        eventName: '',
-        date: '',
+        club_name: '',
+        event_name: '',
+        event_date: '',
         mode: '',
-        time: '',
+        event_time: '',
         venue: '',
-        regFee: '',
+        registration_fee: '',
         certificates: '',
-        regLink: '',
-        regLastDate: '',
-        furthDetails: '',
-        mentor: '',
-        aboutMentor: '',
-        collab: '',
-        eventDesc: '',
-        organizerName: '',
-        phone: ''
+        registration_link: '',
+        registration_last_date: '',
+        further_details: '',
+        mentor_name: '',
+        mentor_bio: '',
+        collaborators: '',
+        event_description: '',
+        organizer_name: '',
+        organizer_phone: ''
       },
       isSubmitting: false,
       submissionStatus: null
@@ -222,9 +222,9 @@ export default {
         console.error('Error adding event: ', error);
         this.submissionStatus = {
           type: 'error',
-          message: 'Error submitting event. Please try again.'
+          message: error.message || (error.error_description || 'Error submitting event. Please try again.')
         };
-        this.handleError();
+        this.handleError(error.message || error.error_description || 'Error submitting event. Please try again.');
         return false;
       } finally {
         this.isSubmitting = false;
@@ -246,8 +246,8 @@ export default {
         dangerouslyHTMLString: true
       });
     },
-    handleError() {
-      toast("Error adding event", {
+    handleError(msg) {
+      toast(msg || "Error adding event", {
         theme: "dark",
         type: "error",
         position: "top-center",

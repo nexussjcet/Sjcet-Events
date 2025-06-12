@@ -11,22 +11,22 @@
         </button>
 
         <!-- Club Name -->
-        <p class="intro" v-if="!event.collab">
-          <span v-if="!isEditing">{{ event.clubName }}</span>
-          <input v-else v-model="editedEvent.clubName" type="text" placeholder="Club Name">
+        <p class="intro" v-if="!event.collaborators">
+          <span v-if="!isEditing">{{ event.club_name }}</span>
+          <input v-else v-model="editedEvent.club_name" type="text" placeholder="Club Name">
         </p>
         <p class="intro" v-else>
-          <span v-if="!isEditing">{{ event.clubName }} / {{ event.collab }}</span>
+          <span v-if="!isEditing">{{ event.club_name }} / {{ event.collaborators }}</span>
           <div v-else class="collab-inputs">
-            <input v-model="editedEvent.clubName" type="text" placeholder="Club Name">
-            <input v-model="editedEvent.collab" type="text" placeholder="Collaborator">
+            <input v-model="editedEvent.club_name" type="text" placeholder="Club Name">
+            <input v-model="editedEvent.collaborators" type="text" placeholder="Collaborator">
           </div>
         </p>
 
         <!-- Event Name -->
         <h1 class="event-title">
-          <span v-if="!isEditing">{{ event.eventName }}</span>
-          <input v-else v-model="editedEvent.eventName" type="text" placeholder="Event Name">
+          <span v-if="!isEditing">{{ event.event_name }}</span>
+          <input v-else v-model="editedEvent.event_name" type="text" placeholder="Event Name">
         </h1>
 
         <!-- Mode -->
@@ -37,20 +37,20 @@
 
         <!-- Event Description -->
         <p class="mt">
-          <span v-if="!isEditing">{{ event.eventDesc }}</span>
-          <textarea v-else v-model="editedEvent.eventDesc" placeholder="Event Description"></textarea>
+          <span v-if="!isEditing">{{ event.event_description }}</span>
+          <textarea v-else v-model="editedEvent.event_description" placeholder="Event Description"></textarea>
         </p>
 
         <!-- Date and Time -->
         <p class="date mt">
           <i class="pi pi-calendar"></i>
-          <span v-if="!isEditing">{{ event.date }}</span>
-          <input v-else v-model="editedEvent.date" type="date">
+          <span v-if="!isEditing">{{ event.event_date }}</span>
+          <input v-else v-model="editedEvent.event_date" type="date">
         </p>
         <p>
           <i class="pi pi-clock"></i>
-          <span v-if="!isEditing">{{ event.time }}</span>
-          <input v-else v-model="editedEvent.time" type="time">
+          <span v-if="!isEditing">{{ event.event_time }}</span>
+          <input v-else v-model="editedEvent.event_time" type="time">
         </p>
 
         <!-- Venue -->
@@ -63,8 +63,8 @@
         <!-- Further Details -->
         <p class="mt">
           About the event: 
-          <span v-if="!isEditing">{{ event.furthDetails }}</span>
-          <textarea v-else v-model="editedEvent.furthDetails" placeholder="Further Details"></textarea>
+          <span v-if="!isEditing">{{ event.further_details }}</span>
+          <textarea v-else v-model="editedEvent.further_details" placeholder="Further Details"></textarea>
         </p>
 
         <!-- Certificates -->
@@ -78,37 +78,37 @@
         <div class="mentor-info mt">
           <p class="medium">Mentor: </p>
           <div>
-            <span v-if="!isEditing">{{ event.mentor }}</span>
-            <input v-else v-model="editedEvent.mentor" type="text" placeholder="Mentor Name">
+            <span v-if="!isEditing">{{ event.mentor_name }}</span>
+            <input v-else v-model="editedEvent.mentor_name" type="text" placeholder="Mentor Name">
           </div>
         </div>
 
         <!-- Registration Details -->
         <p class="mt">
           Last Date to register: 
-          <span v-if="!isEditing">{{ event.regLastDate }}</span>
-          <input v-else v-model="editedEvent.regLastDate" type="date">
+          <span v-if="!isEditing">{{ event.registration_last_date }}</span>
+          <input v-else v-model="editedEvent.registration_last_date" type="date">
         </p>
         <p>
           Registration Fee: 
-          <span v-if="!isEditing">{{ event.regFee }}</span>
-          <input v-else v-model="editedEvent.regFee" type="number" placeholder="Registration Fee">
+          <span v-if="!isEditing">{{ event.registration_fee }}</span>
+          <input v-else v-model="editedEvent.registration_fee" type="number" placeholder="Registration Fee">
         </p>
 
         <!-- Contact Info -->
         <p class="medium mt">Contact:</p>
         <p>
-          <span v-if="!isEditing">{{ event.organizerName }}: {{ event.phone }}</span>
+          <span v-if="!isEditing">{{ event.organizer_name }}: {{ event.organizer_phone }}</span>
           <div v-else class="contact-inputs">
-            <input v-model="editedEvent.organizerName" type="text" placeholder="Organizer Name">
-            <input v-model="editedEvent.phone" type="tel" placeholder="Phone Number">
+            <input v-model="editedEvent.organizer_name" type="text" placeholder="Organizer Name">
+            <input v-model="editedEvent.organizer_phone" type="tel" placeholder="Phone Number">
           </div>
         </p>
 
         <!-- Registration Link -->
         <p v-if="isEditing" class="mt">
           Registration Link:
-          <input v-model="editedEvent.regLink" type="url" placeholder="Registration Link">
+          <input v-model="editedEvent.registration_link" type="url" placeholder="Registration Link">
         </p>
 
         <div class="calendar-buttons mt" v-if="!isEditing">
@@ -120,7 +120,7 @@
           </button>
         </div>
 
-        <a v-if="!isEditing" :href="event.regLink" target="_blank" class="reglink">Register</a>
+        <a v-if="!isEditing" :href="event.registration_link" target="_blank" class="reglink">Register</a>
 
         <div v-if="isEditing" class="edit-actions">
           <button @click="saveChanges" class="save-btn">Save Changes</button>
@@ -152,14 +152,60 @@ export default {
     async fetchEventDetails() {
       try {
         const eventId = this.$route.params.id;
-        const { data, error } = await supabase.from('events').select('*').eq('id', eventId).single();
+        // Explicitly select all columns using their snake_case names
+        const { data, error } = await supabase.from('events').select(
+          `
+            id,
+            club_name,
+            event_name,
+            event_date,
+            mode,
+            event_time,
+            venue,
+            registration_fee,
+            certificates,
+            registration_link,
+            registration_last_date,
+            further_details,
+            mentor_name,
+            mentor_bio,
+            collaborators,
+            event_description,
+            organizer_name,
+            organizer_phone,
+            organizer_id
+          `
+        ).eq('id', eventId).single();
+
         if (error || !data) {
-          throw new Error('Event not found');
+          console.error('Supabase fetch error:', error);
+          throw new Error(error ? error.message : 'Event not found');
         }
         this.event = data;
+        // Map the data to editedEvent with correct snake_case for the edit form
+        this.editedEvent = {
+          club_name: data.club_name,
+          event_name: data.event_name,
+          event_date: data.event_date,
+          mode: data.mode,
+          event_time: data.event_time,
+          venue: data.venue,
+          registration_fee: data.registration_fee,
+          certificates: data.certificates,
+          registration_link: data.registration_link,
+          registration_last_date: data.registration_last_date,
+          further_details: data.further_details,
+          mentor_name: data.mentor_name,
+          mentor_bio: data.mentor_bio,
+          collaborators: data.collaborators,
+          event_description: data.event_description,
+          organizer_name: data.organizer_name,
+          organizer_phone: data.organizer_phone,
+          organizer_id: data.organizer_id 
+        };
       } catch (error) {
-        console.error('Event not found', error);
-        toast.error("Event not found", {
+        console.error('Error fetching event details:', error);
+        toast.error(error.message || "Event not found", {
           theme: "dark",
           position: "top-center"
         });
@@ -177,6 +223,7 @@ export default {
     },
     toggleEdit() {
       if (!this.isEditing) {
+        // Ensure editedEvent is always aligned with event data using snake_case
         this.editedEvent = { ...this.event };
       }
       this.isEditing = !this.isEditing;
@@ -184,12 +231,32 @@ export default {
     async saveChanges() {
       try {
         const eventId = this.$route.params.id;
-        if (!this.editedEvent.eventName || !this.editedEvent.clubName) {
+        // Use snake_case for validation
+        if (!this.editedEvent.event_name || !this.editedEvent.club_name) {
           throw new Error("Event name and club name are required");
         }
-        const { error } = await supabase.from('events').update(this.editedEvent).eq('id', eventId);
+        const { error } = await supabase.from('events').update({
+          club_name: this.editedEvent.club_name,
+          event_name: this.editedEvent.event_name,
+          event_date: this.editedEvent.event_date,
+          mode: this.editedEvent.mode,
+          event_time: this.editedEvent.event_time,
+          venue: this.editedEvent.venue,
+          registration_fee: this.editedEvent.registration_fee,
+          certificates: this.editedEvent.certificates,
+          registration_link: this.editedEvent.registration_link,
+          registration_last_date: this.editedEvent.registration_last_date,
+          further_details: this.editedEvent.further_details,
+          mentor_name: this.editedEvent.mentor_name,
+          mentor_bio: this.editedEvent.mentor_bio,
+          collaborators: this.editedEvent.collaborators,
+          event_description: this.editedEvent.event_description,
+          organizer_name: this.editedEvent.organizer_name,
+          organizer_phone: this.editedEvent.organizer_phone,
+          organizer_id: this.editedEvent.organizer_id
+        }).eq('id', eventId);
         if (error) throw error;
-        this.event = { ...this.editedEvent };
+        this.event = { ...this.editedEvent }; // Update local event object after successful save
         this.isEditing = false;
         toast.success("Event updated successfully", {
           theme: "dark",
@@ -204,14 +271,15 @@ export default {
       }
     },
     formatEventForCalendar() {
-      const [hours, minutes] = this.event.time.split(':');
-      const eventDate = new Date(this.event.date);
+      // Use snake_case properties
+      const [hours, minutes] = this.event.event_time.split(':');
+      const eventDate = new Date(this.event.event_date);
       const startTime = new Date(eventDate.setHours(Number(hours), Number(minutes)));
-      const endTime = new Date(startTime.getTime() + (2 * 60 * 60 * 1000));
+      const endTime = new Date(startTime.getTime() + (2 * 60 * 60 * 1000)); // Assuming 2 hours duration
 
       return {
-        title: this.event.eventName,
-        description: `${this.event.eventDesc}\n\nOrganized by: ${this.event.clubName}\nRegistration Link: ${this.event.regLink}`,
+        title: this.event.event_name,
+        description: `${this.event.event_description}\n\nOrganized by: ${this.event.club_name}\nRegistration Link: ${this.event.registration_link}`,
         start: startTime,
         end: endTime,
         location: this.event.venue
