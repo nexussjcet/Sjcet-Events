@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/router'
-import { auth, onAuthStateChanged } from './firebase';
+import { supabase } from './supabase';
 
 import { plugin as formKitPlugin, defaultConfig } from '@formkit/vue'
 import { createAutoHeightTextareaPlugin } from '@formkit/addons'
@@ -11,8 +11,8 @@ import '@formkit/addons/css/multistep'
 
 let app;
 
-onAuthStateChanged(auth, (user) => {
-  if (!app) {  
+supabase.auth.onAuthStateChange((event, session) => {
+  if (!app) {
     app = createApp(App)
       .use(router)
       .use(formKitPlugin, defaultConfig({
@@ -21,13 +21,11 @@ onAuthStateChanged(auth, (user) => {
           createAutoHeightTextareaPlugin()
         ]
       }));
-
     app.mount('#app');
   }
-
-  if (user) {
-    console.log("User authenticated:", user);
+  if (session && session.user) {
+    console.log('User authenticated:', session.user);
   } else {
-    console.log("User not authenticated");
+    console.log('User not authenticated');
   }
 });
