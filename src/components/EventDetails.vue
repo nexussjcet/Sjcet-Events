@@ -131,8 +131,7 @@
 </template>
 
 <script>
-import { db, auth, updateDoc, doc } from '../firebase';
-import { getDoc } from 'firebase/firestore';
+import { supabase } from '../supabase';
 import { toast } from "vue3-toastify";
 import 'primeicons/primeicons.css';
 
@@ -153,29 +152,24 @@ export default {
     async fetchEventDetails() {
       try {
         const eventId = this.$route.params.id;
-        const eventDoc = await getDoc(doc(db, "events", eventId));
-        if (eventDoc.exists()) {
-          this.event = eventDoc.data();
-        } else {
-          console.error('Event not found');
-          toast.error("Event not found", {
-            theme: "dark",
-            position: "top-center"
-          });
+        const { data, error } = await supabase.from('events').select('*').eq('id', eventId).single();
+        if (error || !data) {
+          throw new Error('Event not found');
         }
+        this.event = data;
       } catch (error) {
-        console.error('Error fetching event details:', error);
-        toast.error("Error loading event details", {
+        console.error('Event not found', error);
+        toast.error("Event not found", {
           theme: "dark",
           position: "top-center"
         });
       }
     },
     async checkAdminStatus() {
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          this.isAdmin = userDoc.exists() && userDoc.data().role === 'admin';
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          const { data, error } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+          this.isAdmin = data && data.role === 'admin';
         } else {
           this.isAdmin = false;
         }
@@ -190,17 +184,13 @@ export default {
     async saveChanges() {
       try {
         const eventId = this.$route.params.id;
-        const eventRef = doc(db, "events", eventId);
-        
-        // Validate required fields
         if (!this.editedEvent.eventName || !this.editedEvent.clubName) {
           throw new Error("Event name and club name are required");
         }
-
-        await updateDoc(eventRef, this.editedEvent);
+        const { error } = await supabase.from('events').update(this.editedEvent).eq('id', eventId);
+        if (error) throw error;
         this.event = { ...this.editedEvent };
         this.isEditing = false;
-        
         toast.success("Event updated successfully", {
           theme: "dark",
           position: "top-center"

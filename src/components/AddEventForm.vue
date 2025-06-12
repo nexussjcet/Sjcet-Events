@@ -167,24 +167,18 @@
 
 <script>
 import { useRouter } from 'vue-router';
-import { db } from "../firebase"; 
-import { addDoc, collection } from "firebase/firestore";
+import { supabase } from "../supabase";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
 export default {
   setup() {
     const router = useRouter();
-
     const navigateTo = (routeName) => {
       router.push({ name: routeName });
     };
-    
-    return {
-      navigateTo,
-    };
+    return { navigateTo };
   },
-  
   data() {
     return {
       eventDetail: {
@@ -210,17 +204,14 @@ export default {
       submissionStatus: null
     };
   },
-
   methods: {
     async handleSubmit() {
       if (this.isSubmitting) return false;
-      
       this.isSubmitting = true;
       this.submissionStatus = null;
-      
       try {
-        const docRef = await addDoc(collection(db, 'events'), this.eventDetail);
-        console.log('Document written with ID: ', docRef.id);
+        const { data, error } = await supabase.from('events').insert([{ ...this.eventDetail }]);
+        if (error) throw error;
         this.submissionStatus = {
           type: 'success',
           message: 'Event submitted successfully!'
@@ -228,7 +219,7 @@ export default {
         this.notify();
         return true;
       } catch (error) {
-        console.error('Error adding document: ', error);
+        console.error('Error adding event: ', error);
         this.submissionStatus = {
           type: 'error',
           message: 'Error submitting event. Please try again.'
@@ -239,7 +230,6 @@ export default {
         this.isSubmitting = false;
       }
     },
-
     async submitAndNavigate() {
       const success = await this.handleSubmit();
       if (success) {
@@ -248,7 +238,6 @@ export default {
         }, 2000);
       }
     },
-
     notify() {
       toast("Successfully added event", {
         theme: "dark",
@@ -257,7 +246,6 @@ export default {
         dangerouslyHTMLString: true
       });
     },
-
     handleError() {
       toast("Error adding event", {
         theme: "dark",

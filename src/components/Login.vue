@@ -4,37 +4,80 @@
         <img src="/logo.webp" alt="Home" width=140px data-aos="fade-right" data-aos-duration="1500">
         </button>
     <div class="login-container" data-aos="fade-up" data-aos-duration="1500">
-      <h2>Organizer Login</h2>
+      <h2>Login</h2>
       <form @submit.prevent="loginWithEmail">
-        <button @click="loginWithGoogle">Login with College Email-ID</button>
+        <input v-model="email" type="email" placeholder="Email" required />
+        <input v-model="password" type="password" placeholder="Password" required />
+        <button type="submit">Login</button>
       </form>
+      <div style="margin-top: 1rem;">
+        <span>Don't have an account?</span>
+        <button @click="signUpWithEmail" style="margin-left: 0.5rem;">Sign Up</button>
+      </div>
     </div>
     </div>
   </template>
   
   <script>
-  import { signInWithGoogle } from '../firebase';
+  import { supabase } from '../supabase';
   import { toast } from "vue3-toastify";
 
   import "vue3-toastify/dist/index.css";
   
   export default {
+    data() {
+      return {
+        email: '',
+        password: ''
+      };
+    },
     methods: {
-      async loginWithGoogle() {
+      async loginWithEmail() {
         try {
-          await signInWithGoogle();
+          const { error } = await supabase.auth.signInWithPassword({
+            email: this.email,
+            password: this.password
+          });
+          if (error) throw error;
+          toast.success("Login successful!", {
+            theme: "dark",
+            position: "top-center"
+          });
           this.$router.push('/');
         } catch (error) {
-          toast("Authentication error!!", {
-          "theme": "dark",
-          "type": "error",
-          "position": "top-center",
-          "dangerouslyHTMLString": true
-        })
+          toast.error(error.message || "Login failed!", {
+            theme: "dark",
+            position: "top-center"
+          });
         }
+      },
+      async signUpWithEmail() {
+        if (!this.email || !this.password) {
+          toast.error("Please enter both email and password.", {
+            theme: "dark",
+            position: "top-center"
+          });
+          return;
         }
+        try {
+          const { error } = await supabase.auth.signUp({
+            email: this.email,
+            password: this.password
+          });
+          if (error) throw error;
+          toast.success("Signup successful! Please check your email to confirm.", {
+            theme: "dark",
+            position: "top-center"
+          });
+        } catch (error) {
+          toast.error(error.message || "Signup failed!", {
+            theme: "dark",
+            position: "top-center"
+          });
         }
-        }
+      }
+    }
+  }
   </script>
 
 <style>

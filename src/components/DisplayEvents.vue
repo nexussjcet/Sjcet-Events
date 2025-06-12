@@ -56,14 +56,16 @@
 </template>
 
 <script>
-import { auth, db } from '../firebase';
-import { signOut } from 'firebase/auth';
-import { signInWithGoogle } from '../firebase';
+import { supabase } from '../supabase';
 import { toast } from "vue3-toastify";
 import { ref, onMounted } from 'vue';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { useRouter } from 'vue-router';
 
 export default {
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
   data() {
     return {
       searchQuery: '',
@@ -77,14 +79,11 @@ export default {
   },
   mounted() {
     this.fetchEvents();
-    auth.onAuthStateChanged(async (user) => {
-      this.isLoggedIn = !!user;
-      if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          this.isAdmin = userDoc.data().role === 'admin';
-        }
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      this.isLoggedIn = !!session?.user;
+      if (session?.user) {
+        const { data, error } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+        this.isAdmin = data && data.role === 'admin';
       } else {
         this.isAdmin = false;
       }
@@ -93,9 +92,9 @@ export default {
   methods: {
     async fetchEvents() {
       try {
-        const eventCollection = collection(db, "events");
-        const eventListSnapshot = await getDocs(eventCollection);
-        this.eventList = eventListSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data, error } = await supabase.from('events').select('*');
+        if (error) throw error;
+        this.eventList = data || [];
         this.isLoading = false;
       } catch (error) {
         console.error("Error fetching events: ", error);
@@ -133,18 +132,17 @@ export default {
         return `Event Over`
       }
 
-    }
-    ,
+    },
     async handleAuth() {
       if (this.isLoggedIn) {
         await this.handleLogout();
       } else {
-        await this.handleLoginWithGoogle();
+        this.router.push({ name: 'Login' });
       }
     },
     async handleLogout() {
       try {
-        await signOut(auth);
+        await supabase.auth.signOut();
         toast.success("Logged out successfully", {
           theme: "dark",
           position: "top-center"
@@ -152,20 +150,6 @@ export default {
         this.isAdmin = false;
       } catch (error) {
         toast.error("Error logging out", {
-          theme: "dark",
-          position: "top-center"
-        });
-      }
-    },
-    async handleLoginWithGoogle() {
-      try {
-        await signInWithGoogle();
-        toast.success("Logged in successfully", {
-          theme: "dark",
-          position: "top-center"
-        });
-      } catch (error) {
-        toast.error("Authentication error!", {
           theme: "dark",
           position: "top-center"
         });

@@ -45,13 +45,10 @@
 </template>
 
 <script>
-import { auth, db } from "../firebase";
-import { signOut } from "firebase/auth";
-import { signInWithGoogle } from "../firebase";
+import { supabase } from "../supabase";
 import { toast } from "vue3-toastify";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { doc, getDoc } from "firebase/firestore";
 
 export default {
   setup() {
@@ -60,14 +57,14 @@ export default {
     const router = useRouter();
 
     onMounted(async () => {
-      auth.onAuthStateChanged(async (user) => {
-        isLoggedIn.value = !!user;
-        if (user) {
-          const userRef = doc(db, "users", user.uid);
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists()) {
-            isAdmin.value = userDoc.data().role === "admin";
-          }
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        isLoggedIn.value = !!session?.user;
+        if (session?.user) {
+          // Fetch user profile from Supabase
+          const { data, error } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+          isAdmin.value = data && data.role === 'admin';
+        } else {
+          isAdmin.value = false;
         }
       });
     });
@@ -80,13 +77,13 @@ export default {
       if (isLoggedIn.value) {
         await handleLogout();
       } else {
-        await handleLoginWithGoogle();
+        router.push({ name: 'Login' });
       }
     };
 
     const handleLogout = async () => {
       try {
-        await signOut(auth);
+        await supabase.auth.signOut();
         toast.success("Logged out successfully", {
           theme: "dark",
           position: "top-center",
@@ -94,22 +91,6 @@ export default {
         isAdmin.value = false;
       } catch (error) {
         toast.error("Error logging out", {
-          theme: "dark",
-          position: "top-center",
-        });
-      }
-    };
-
-    const handleLoginWithGoogle = async () => {
-      try {
-        await signInWithGoogle();
-        toast.success("Logged in successfully", {
-          theme: "dark",
-          position: "top-center",
-        });
-        router.push("/");
-      } catch (error) {
-        toast.error("Authentication error!", {
           theme: "dark",
           position: "top-center",
         });
