@@ -18,12 +18,12 @@
     "axios": "^1.7.2",
     "concurrently": "^8.2.2",
     "epic-spinners": "^2.0.0",
-    "firebase": "^10.14.1",
     "googleapis": "^144.0.0",
     "primeicons": "^7.0.0",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",
-    "vue3-toastify": "^0.2.2"
+    "vue3-toastify": "^0.2.2",
+    "@supabase/supabase-js": "latest"
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
