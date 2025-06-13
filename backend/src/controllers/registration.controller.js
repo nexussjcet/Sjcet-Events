@@ -3,7 +3,7 @@ export const registerForEvent = async (req, res) => {
     const { event_id, name, email, phone } = req.body;
     
     const { data, error } = await supabase
-      .from('registrations')
+      .from('bookings')
       .insert({
         event_id,
         user_id: req.user.id,

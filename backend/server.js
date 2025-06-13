@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 const adminRoutes = require('./src/routes/admin.routes');
+const registrationRoutes = require('.src/routes/registrations.routes');
 const eventRoutes = require('./src/routes/event.routes');
 // Import other routes as needed
 
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/admin', adminRoutes);
+app.use('/api/registrations', registrationRoutes);
 app.use('/api/events', eventRoutes);
 // Add other routes
 
