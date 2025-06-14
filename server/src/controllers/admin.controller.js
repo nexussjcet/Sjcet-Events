@@ -1,91 +1,115 @@
 const supabase = require('../config/supabase');
 
+// Temporary password generator
+function generateTemporaryPassword(length = 12) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return password;
+}
+
 const addOrganizer = async (req, res) => {
   try {
     const { email, name } = req.body;
-    
-    // First create auth user
+    const tempPassword = generateTemporaryPassword();
+
+    // Step 1: Create user in Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
-      password: generateTemporaryPassword(), // implement this function
+      password: tempPassword,
       email_confirm: true,
     });
-    
     if (authError) throw authError;
 
-    // Add to profiles table
+    const userId = authData.user.id;
+
+    // Step 2: Upsert profile
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({
-        user_id: authData.user.id,
+      .upsert({
+        id: userId,
         email,
         name,
-        role: 'organizer'
+        role: 'organizer',
       });
-    
+
     if (profileError) throw profileError;
 
-    // Add to organizers table
-    const { data: organizerData, error: organizerError } = await supabase
+    // Step 3: Insert into organizers (avoid duplicate insert)
+    const { data: existingOrg } = await supabase
       .from('organizers')
-      .insert({
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!existingOrg) {
+      const { data: organizerData, error: organizerError } = await supabase
+        .from('organizers')
+        .insert({
+          name,
+          email,
+          user_id: userId,
+        })
+        .select();
+
+      if (organizerError) throw organizerError;
+
+      // Step 4: Log invitation
+      console.log(`✅ Organizer created. Temp password for ${email}: ${tempPassword}`);
+
+      return res.status(201).json({
+        ...organizerData[0],
+        temp_password: tempPassword,
+      });
+    } else {
+      return res.status(200).json({
+        message: 'Organizer already exists',
         email,
-        name,
-        created_by: req.user.id
-      })
-      .select();
-    
-    if (organizerError) throw organizerError;
+      });
+    }
 
-    // Send invitation email (implement this)
-    sendInvitationEmail(email, name);
-
-    res.status(201).json(organizerData[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('❌ Add Organizer Error:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 };
-
 const deleteOrganizer = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Get organizer email first
-    const { data: organizer, error: organizerError } = await supabase
+
+    // Get the organizer
+    const { data: organizer, error: fetchError } = await supabase
       .from('organizers')
-      .select('email')
+      .select('user_id, email')
       .eq('id', id)
       .single();
-    
-    if (organizerError) throw organizerError;
+
+    if (fetchError) throw fetchError;
     if (!organizer) return res.status(404).json({ error: 'Organizer not found' });
 
-    // Delete from auth users
-    const { data: user, error: userError } = await supabase
-      .from('profiles')
-      .select('user_id')
-      .eq('email', organizer.email)
-      .single();
-    
-    if (userError) throw userError;
+    // Delete from Supabase Auth
+    const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(organizer.user_id);
+    if (deleteAuthError) throw deleteAuthError;
 
-    if (user) {
-      const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(user.user_id);
-      if (deleteAuthError) throw deleteAuthError;
-    }
-
-    // Delete from organizers table (profiles will be deleted via cascade)
-    const { error: deleteError } = await supabase
+    // Delete from organizers table (profiles will be removed if cascade is set)
+    const { error: deleteOrgError } = await supabase
       .from('organizers')
       .delete()
       .eq('id', id);
-    
-    if (deleteError) throw deleteError;
 
-    res.status(204).send();
+    if (deleteOrgError) throw deleteOrgError;
+
+    res.status(200).json({ message: 'Organizer deleted successfully' });
+
   } catch (err) {
+    console.error('❌ Delete Organizer Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = { addOrganizer, deleteOrganizer };
+module.exports = {
+  addOrganizer,
+  deleteOrganizer,
+};
