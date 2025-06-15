@@ -108,8 +108,41 @@ const deleteOrganizer = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+// Get all users
+const getAllUsers = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, email, role, created_at');
 
+    if (error) throw error;
+
+    res.status(200).json({ users: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Delete user by ID
+const deleteUserById = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 module.exports = {
   addOrganizer,
   deleteOrganizer,
+  getAllUsers,
+  deleteUserById
 };
