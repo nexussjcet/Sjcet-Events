@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 const adminRoutes = require('./src/routes/admin.routes');
-const registrationRoutes = require('.src/routes/registrations.routes');
+const registrationRoutes = require('./src/routes/registration.routes');
 const eventRoutes = require('./src/routes/event.routes');
 // Import other routes as needed
 

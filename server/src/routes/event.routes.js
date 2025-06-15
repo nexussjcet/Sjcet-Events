@@ -1,3 +1,4 @@
+const supabase = require('../config/supabase');
 const express = require('express');
 const router = express.Router();
 const authenticate = require('../middlewares/auth.middleware');
@@ -49,14 +50,14 @@ router.post('/register', async (req, res) => {
 
 // Public routes
 router.get('/', getEvents);
-router.get('/:id', getEventDetails);
+router.get('/details/:id', getEventDetails);
 
 // Protected routes
 router.use(authenticate);
-router.use(checkRole('organizer'));
+router.use(checkRole(['admin', 'organizer']));
 
 router.post('/', createEvent);
-router.put('/:id', updateEvent);
-router.delete('/:id', deleteEvent);
+router.put('/update/:id', updateEvent);
+router.delete('/delete/:id', deleteEvent);
 
 module.exports = router;

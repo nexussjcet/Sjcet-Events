@@ -3,7 +3,24 @@ const supabase = require('../config/supabase');
 
 const createEvent = async (req, res) => {
   try {
-    const { title, description, date, time, location, image_url, website_url } = req.body;
+    const {
+  event_name,
+  event_description,
+  event_date,
+  event_time,
+  venue, // instead of location
+  mode,
+  registration_fee,
+  certificates,
+  registration_link,
+  registration_last_date,
+  further_details,
+  mentor_name,
+  mentor_bio,
+  collaborators,
+  organizer_name,
+  organizer_phone
+	} = req.body;
     
     // Verify the user is an organizer
     const { data: organizer, error: organizerError } = await supabase
@@ -16,17 +33,26 @@ const createEvent = async (req, res) => {
     if (!organizer) return res.status(403).json({ error: 'Only organizers can create events' });
 
     const { data, error } = await supabase
-      .from('events')
-      .insert({
-        title,
-        description,
-        date,
-        time,
-        location,
-        image_url,
-        website_url,
-        organizer_id: organizer.id
-      })
+  .from('events')
+  .insert({
+    event_name,
+    event_description,
+    event_date,
+    event_time,
+    venue,
+    mode,
+    registration_fee,
+    certificates,
+    registration_link,
+    registration_last_date,
+    further_details,
+    mentor_name,
+    mentor_bio,
+    collaborators,
+    organizer_name,
+    organizer_phone,
+    organizer_id: organizer.id
+  })
       .select();
     
     if (error) throw error;
@@ -123,7 +149,7 @@ const getEvents = async (req, res) => {
     const { data, error } = await supabase
       .from('events')
       .select('*, organizers(name)')
-      .order('date', { ascending: true });
+      .order('event_date', { ascending: true });
     
     if (error) throw error;
 

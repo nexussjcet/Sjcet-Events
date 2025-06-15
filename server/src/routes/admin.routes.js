@@ -6,7 +6,12 @@ const { addOrganizer, deleteOrganizer } = require('../controllers/admin.controll
 
 router.use(authenticate);
 router.use(checkRole('admin'));
-
+router.get('/data', (req, res) => {
+  res.status(200).json({
+    message: '✅ Admin access confirmed',
+    user: req.user,
+  });
+});
 router.post('/organizers', addOrganizer);
 router.delete('/organizers/:id', deleteOrganizer);
 
