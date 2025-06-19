@@ -4,10 +4,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-const adminRoutes = require('./src/routes/admin.routes');
-const registrationRoutes = require('./src/routes/registration.routes');
-const eventRoutes = require('./src/routes/event.routes');
-const authRoutes = require('./src/routes/auth.routes');
+const adminRoutes = require('../src/routes/admin.routes');
+const registrationRoutes = require('../src/routes/registration.routes');
+const eventRoutes = require('../src/routes/event.routes');
+const authRoutes = require('../src/routes/auth.routes');
 // Import other routes as needed
 
 const app = express();
